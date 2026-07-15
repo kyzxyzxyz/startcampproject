@@ -1,0 +1,58 @@
+{
+  "app": {
+    "homeTitle": "구미 · 경북권 지역 정보 공유 커뮤니티",
+    "homeLead": "구미 · 경북권의 지역 정보를 자유롭게 공유해보세요.",
+    "communityView": "커뮤니티 보기",
+    "mapView": "지도 보기",
+    "map": "지도",
+    "quickLinks": "빠른 바로가기",
+    "myPost": "내 장소 의견 남기기",
+    "chat": "챗봇과 대화",
+    "recommendRoutes": "추천 여행코스",
+    "recentPosts": "최근 게시글",
+    "noPosts": "게시글이 없습니다.",
+    "list": "목록",
+    "close": "닫기",
+    "searchPlaceholder": "검색 (제목/본문)",
+    "searchPlaceholderModal": "검색 (장소명)",
+    "emptyCategory": "해당 카테고리의 장소가 없습니다.",
+    "totalCount": "총 {count}건",
+    "saved": "저장되었습니다.",
+    "deleted": "삭제되었습니다.",
+    "edit": "수정",
+    "delete": "삭제",
+    "backToList": "목록으로",
+    "confirmDeletePrompt": "삭제 비밀번호를 입력하세요",
+    "passwordPlaceholder": "비밀번호 입력"
+  },
+  "categories": {
+    "tourist": "관광지",
+    "food": "음식점",
+    "shopping": "쇼핑",
+    "sports": "레포츠",
+    "culture": "문화시설",
+    "lodging": "숙박",
+    "course": "여행코스",
+    "festival": "축제/공연/행사"
+  },
+  "modal": {
+    "itemsTitle": "{label} 목록",
+    "searchPlaceholder": "검색 (장소명)",
+    "resultCount": "총 {total}건 — 검색 결과 {filtered}건",
+    "noItems": "해당 카테고리의 장소가 없습니다."
+  },
+  "board": {
+    "listTitle": "게시글 목록",
+    "search": "검색",
+    "all": "전체",
+    "previous": "이전",
+    "next": "다음",
+    "noPosts": "게시글이 없습니다.",
+    "createdAt": "작성: {date}"
+  },
+  "detail": {
+    "title": "게시글 상세",
+    "editTitle": "수정 (비밀번호 확인)",
+    "deleteTitle": "삭제 (비밀번호 입력)"
+  }
+}

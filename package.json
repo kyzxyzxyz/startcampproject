@@ -1,0 +1,24 @@
+{
+  "name": "ggb-vue-spa",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "extract-manifest": "node scripts/extract-collection-dates.js"
+  },
+  "dependencies": {
+    "leaflet": "^1.9.4",
+    "leaflet.markercluster": "^1.5.3",
+    "node-fetch": "^2.7.0",
+    "uuid": "^9.0.0",
+    "vue": "^3.3.0",
+    "vue-i18n": "^9.14.5",
+    "vue-router": "^4.2.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^6.0.8",
+    "vite": "^5.0.0"
+  }
+}

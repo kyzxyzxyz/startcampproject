@@ -1,0 +1,91 @@
+<template>
+  <div>
+    <h3>게시글 목록</h3>
+    <div class="search-row">
+      <input class="search-input" v-model="q" placeholder="검색(제목/내용)" />
+      <button @click="doSearch">검색</button>
+      <button @click="clearSearch">전체</button>
+    </div>
+
+    <ul class="post-list">
+      <li v-for="p in paged" :key="p.id" class="post-item">
+        <button class="post-link" @click="openPost(p)">{{ p.title }}</button>
+        <small class="post-meta"> — {{ new Date(p.createdAt).toLocaleString() }}</small>
+      </li>
+    </ul>
+
+    <div v-if="pages>1" class="pager">
+      <button @click="prev" :disabled="page===1">이전</button>
+      <span>{{page}} / {{pages}}</span>
+      <button @click="next" :disabled="page===pages">다음</button>
+    </div>
+
+    <div v-if="filtered.length===0">
+      <p>게시글이 없습니다.</p>
+    </div>
+  </div>
+</template>
+
+<script>
+import { computed, ref, watch } from 'vue'
+import { loadPosts } from '../utils/storage'
+import { useRoute } from 'vue-router'
+
+export default {
+  name: 'BoardList',
+  props: {
+    category: { type: String, default: null },
+    poiId: { type: String, default: null },
+    reloadKey: { type: [String, Number], default: null }
+  },
+  emits: ['refresh','open-post'],
+  setup(props, { emit }) {
+    const route = useRoute()
+    const q = ref('')
+    const page = ref(1)
+    const pageSize = 10
+
+    const filtered = computed(() => {
+      // read fresh from storage each time
+      const all = loadPosts()
+      const routePoi = route.query.poiId ? String(route.query.poiId) : null
+      const effectivePoi = props.poiId || routePoi
+      let arr = all
+      if (props.category) arr = arr.filter(p => p.category === props.category)
+      if (effectivePoi) arr = arr.filter(p => p.poiId === effectivePoi)
+      if (!q.value) return arr
+      return arr.filter(p => (p.title + p.content).toLowerCase().includes(q.value.toLowerCase()))
+    })
+
+    const pages = computed(() => Math.max(1, Math.ceil(filtered.value.length / pageSize)))
+    const paged = computed(() => filtered.value.slice((page.value-1)*pageSize, page.value*pageSize))
+
+    function doSearch() { page.value = 1 }
+    function clearSearch() { q.value=''; page.value=1; emit('refresh') }
+    function next(){ if(page.value<pages.value) page.value++ }
+    function prev(){ if(page.value>1) page.value-- }
+
+    watch(() => props.reloadKey, () => { page.value = 1 })
+
+    function openPost(post) {
+  console.log('[BoardList] openPost', post && post.id)
+  emit('open-post', post)
+}
+
+    // watch filtered to adjust page
+    watch(filtered, () => { if(page.value>pages.value) page.value = pages.value })
+
+    return { q, page, pages, paged, doSearch, clearSearch, next, prev, filtered, openPost }
+  }
+}
+</script>
+
+<style scoped>
+.search-row { display:flex; gap:8px; margin-bottom:8px; align-items:center; }
+.search-input { flex:1; padding:8px; border-radius:8px; border:1px solid rgba(11,17,34,0.06); box-sizing:border-box; }
+.post-list { list-style:none; padding:0; margin:0; }
+.post-item { display:flex; align-items:center; gap:8px; padding:10px 0; border-bottom:1px solid rgba(11,17,34,0.04); }
+.post-link { background:transparent; border:none; color:var(--primary); font-weight:600; cursor:pointer; text-align:left; padding:0; }
+.post-meta { color:#64748b; font-size:12px; margin-left:auto; }
+.pager { margin-top:8px; display:flex; gap:8px; align-items:center; }
+</style>

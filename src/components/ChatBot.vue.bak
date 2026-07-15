@@ -1,0 +1,88 @@
+<template>
+  <div class="chat-wrapper">
+    <div class="header"><strong>지역 챗봇</strong></div>
+    <div class="history" ref="historyRef">
+      <ChatMessage v-for="(m, i) in history" :key="i" :role="m.role" :text="m.text" />
+    </div>
+    <div class="input-row">
+      <input v-model="q" @keydown.enter="send" placeholder="질문을 입력하세요. (예: 금오산 근처 추천 관광지)" />
+      <button @click="send">전송</button>
+      <button @click="clear">초기화</button>
+    </div>
+    <div class="quick">
+      <button @click="preset('금오산 근처 추천 관광지 3곳 알려줘')">관광지 추천</button>
+      <button @click="preset('이번 달 구미 축제 일정 알려줘')">축제 일정</button>
+      <button @click="preset('모범음식점 추천해줘')">음식점 위치</button>
+    </div>
+  </div>
+</template>
+
+<script>
+import { ref, onMounted } from 'vue'
+import ChatMessage from './ChatMessage.vue'
+import { loadAllData, simpleRank } from '../utils/dataSearch'
+import { callOpenAI } from '../utils/openai'
+
+export default {
+  components: { ChatMessage },
+  setup() {
+    const q = ref('')
+    const history = ref([
+      { role:'system', text:'당신은 구미_경북권 지역 안내 봇입니다. 제공된 지역 데이터 기반으로 사실에 근거해 답변하세요.' }
+    ])
+    const dataCache = ref([])
+
+    onMounted(async () => {
+      dataCache.value = await loadAllData()
+    })
+
+    async function send() {
+      if (!q.value.trim()) return;
+      const userText = q.value.trim()
+      history.value.push({ role:'user', text: userText })
+
+      // 간단 RAG: 로컬 데이터 검색 후 요약을 system context로 추가
+      const top = simpleRank(userText, dataCache.value, 5)
+      const summary = top.map(t => \`- \${t.title || ''}\${t.addr1 ? ' / ' + t.addr1 : ''}\${t.mapx && t.mapy ? \` (lon:\${t.mapx},lat:\${t.mapy})\` : ''}\`).join('\\n')
+      const systemContext = \`참고자료(상위 \${top.length}개):\\n\${summary}\\n위 자료를 참고하여 질문에 답변하시오. 출처: 한국관광공사 Tour API.\`
+
+      const messages = [
+        { role:'system', content: systemContext },
+        ...history.value.filter(h=>h.role!=='system').map(h=>({role:h.role, content:h.text})),
+        { role:'user', content: userText }
+      ]
+
+      history.value.push({ role:'assistant', text: '응답을 생성 중입니다...' })
+      try {
+        const ai = await callOpenAI(messages)
+        // replace placeholder assistant message
+        history.value[history.value.length-1].text = ai
+      } catch (e) {
+        history.value[history.value.length-1].text = \`오류: \${e.message}\`
+      }
+
+      q.value = ''
+      // 스크롤
+      setTimeout(()=> {
+        const el = document.querySelector('.history')
+        if(el) el.scrollTop = el.scrollHeight
+      }, 50)
+    }
+
+    function clear() {
+      history.value = [{ role:'system', text:'당신은 구미_경북권 지역 안내 봇입니다. 제공된 지역 데이터 기반으로 사실에 근거해 답변하세요.' }]
+    }
+
+    function preset(t){ q.value = t; send() }
+
+    return { q, history, send, clear, preset }
+  }
+}
+</script>
+
+<style>
+.chat-wrapper { border:1px solid #ddd; padding:12px; width:100%; max-width:720px; }
+.history { height:300px; overflow:auto; background:#fff; padding:8px; border:1px solid #eee; }
+.input-row { margin-top:8px; display:flex; gap:8px; }
+.quick { margin-top:8px; display:flex; gap:8px; flex-wrap:wrap; }
+</style>

@@ -1,0 +1,58 @@
+{
+  "app": {
+    "homeTitle": "Gumi & Gyeongbuk Region Info Community",
+    "homeLead": "Share and discover local information across Gumi and the Gyeongbuk region.",
+    "communityView": "View Community",
+    "mapView": "View Map",
+    "map": "Map",
+    "quickLinks": "Quick Links",
+    "myPost": "Leave a Place Suggestion",
+    "chat": "Chat with Bot",
+    "recommendRoutes": "Recommended Routes",
+    "recentPosts": "Recent Posts",
+    "noPosts": "No posts available.",
+    "list": "List",
+    "close": "Close",
+    "searchPlaceholder": "Search (title/content)",
+    "searchPlaceholderModal": "Search (place name)",
+    "emptyCategory": "No places in this category.",
+    "totalCount": "Total {count}",
+    "saved": "Saved.",
+    "deleted": "Deleted.",
+    "edit": "Edit",
+    "delete": "Delete",
+    "backToList": "Back to list",
+    "confirmDeletePrompt": "Enter delete password",
+    "passwordPlaceholder": "Enter password"
+  },
+  "categories": {
+    "tourist": "Tourist spots",
+    "food": "Restaurants",
+    "shopping": "Shopping",
+    "sports": "Leports",
+    "culture": "Cultural facilities",
+    "lodging": "Lodging",
+    "course": "Travel courses",
+    "festival": "Festivals/Events"
+  },
+  "modal": {
+    "itemsTitle": "{label} list",
+    "searchPlaceholder": "Search (place name)",
+    "resultCount": "Total {total} — Results {filtered}",
+    "noItems": "No places for this category."
+  },
+  "board": {
+    "listTitle": "Posts",
+    "search": "Search",
+    "all": "All",
+    "previous": "Previous",
+    "next": "Next",
+    "noPosts": "No posts available.",
+    "createdAt": "Created: {date}"
+  },
+  "detail": {
+    "title": "Post detail",
+    "editTitle": "Edit (password required)",
+    "deleteTitle": "Delete (enter password)"
+  }
+}

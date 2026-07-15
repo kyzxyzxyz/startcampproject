@@ -1,0 +1,220 @@
+<template>
+  <div class="home-page">
+    <section class="hero card">
+      <div class="hero-inner">
+        <div class="hero-left">
+          <h1 class="hero-title">{{ $t('app.homeTitle') }}</h1>
+          <p class="lead">{{ $t('app.homeLead') }}</p>
+
+          <!-- 카테고리 그리드 (4x2) -->
+          <div class="category-grid">
+            <button
+              v-for="cat in categories"
+              :key="cat.key"
+              class="cat-card"
+              @click="openCategory(cat)"
+            >
+              <div class="cat-num">{{ counts[cat.key] ?? 0 }}</div>
+              <div class="cat-label">{{ $t(cat.labelKey) }}</div>
+            </button>
+          </div>
+        </div>
+
+        <div class="hero-right">
+          <!-- 오른쪽 빈 공간/비주얼 영역 — 필요시 이미지나 통계 배치 가능 -->
+        </div>
+      </div>
+    </section>
+
+    <section class="content-row">
+      <div class="left-col">
+        <div class="card" id="map-section" ref="map">
+          <h3 class="card-title">{{ $t('app.map') }}</h3>
+          <MapView />
+        </div>
+      </div>
+
+      <aside class="right-col">
+        <div class="card">
+          <h4>{{ $t('app.recommendRoutes') }}</h4>
+          <ul class="compact-list">
+            <li>금오산 산책 코스 · 1일</li>
+            <li>구미 푸드 페스티벌 즐기기</li>
+            <li>지역 문화시설 탐방</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h4>{{ $t('app.recentPosts') }}</h4>
+          <ul class="compact-list">
+            <li v-for="p in recentPosts" :key="p.id">
+              <router-link :to="`/board/${p.id}`">{{ p.title }}</router-link>
+            </li>
+            <li v-if="recentPosts.length===0"><em>{{ $t('app.noPosts') }}</em></li>
+          </ul>
+        </div>
+      </aside>
+    </section>
+
+    <CategoryListModal
+      :visible="showModal"
+      :category="activeCategory"
+      :items="modalItems"
+      @close="closeModal"
+    />
+  </div>
+</template>
+
+<script>
+import { ref, reactive, onMounted } from 'vue'
+import MapView from '../components/MapView.vue'
+import CategoryListModal from '../components/CategoryListModal.vue'
+import { loadPosts } from '../utils/storage'
+
+export default {
+  components: { MapView, CategoryListModal },
+  setup() {
+    const categories = [
+      { key: 'tourist', labelKey: 'categories.tourist', file: '/구미_경북권_관광지.json' },
+      { key: 'food', labelKey: 'categories.food', file: '/구미_경북권_음식점.json' },
+      { key: 'shopping', labelKey: 'categories.shopping', file: '/구미_경북권_쇼핑.json' },
+      { key: 'sports', labelKey: 'categories.sports', file: '/구미_경북권_레포츠.json' },
+      { key: 'culture', labelKey: 'categories.culture', file: '/구미_경북권_문화시설.json' },
+      { key: 'lodging', labelKey: 'categories.lodging', file: '/구미_경북권_숙박.json' },
+      { key: 'course', labelKey: 'categories.course', file: '/구미_경북권_여행코스.json' },
+      { key: 'festival', labelKey: 'categories.festival', file: '/구미_경북권_축제공연행사.json' }
+    ]
+
+    const counts = reactive({})
+    const itemsCache = reactive({})
+    const showModal = ref(false)
+    const activeCategory = ref(null)
+    const modalItems = ref([])
+
+    const recentPosts = ref([])
+
+    function loadRecentPosts() {
+      const all = loadPosts() || []
+      all.sort((a,b) => {
+        const ta = a.createdAt || a.createdTime || a.created || ''
+        const tb = b.createdAt || b.createdTime || b.created || ''
+        return (tb > ta) ? 1 : (tb < ta) ? -1 : 0
+      })
+      recentPosts.value = all.slice(0,3)
+    }
+
+    async function fetchCount(cat) {
+      try {
+        const res = await fetch(cat.file)
+        if (!res.ok) return 0
+        const json = await res.json()
+        return (json.total ?? (json.items && json.items.length) ?? 0)
+      } catch (e) {
+        return 0
+      }
+    }
+
+    async function loadAllCounts() {
+      await Promise.all(categories.map(async (c) => {
+        counts[c.key] = await fetchCount(c)
+      }))
+    }
+
+    async function openCategory(cat) {
+      activeCategory.value = cat
+      if (itemsCache[cat.key]) {
+        modalItems.value = itemsCache[cat.key]
+        showModal.value = true
+        return
+      }
+      try {
+        const res = await fetch(cat.file)
+        if (!res.ok) {
+          modalItems.value = []
+          showModal.value = true
+          return
+        }
+        const json = await res.json()
+        const items = Array.isArray(json.items) ? json.items.slice() : []
+        items.sort((a,b) => {
+          if (!a.title) return -1
+          if (!b.title) return 1
+          return a.title.localeCompare(b.title, 'ko')
+        })
+        itemsCache[cat.key] = items
+        modalItems.value = items
+      } catch (e) {
+        modalItems.value = []
+      } finally {
+        showModal.value = true
+      }
+    }
+
+    function closeModal() {
+      showModal.value = false
+      activeCategory.value = null
+      modalItems.value = []
+    }
+
+    onMounted(() => {
+      loadAllCounts()
+      loadRecentPosts()
+      window.addEventListener('ggb-posts-changed', loadRecentPosts)
+    })
+
+    return {
+      categories, counts, showModal, activeCategory, modalItems,
+      openCategory, closeModal, recentPosts
+    }
+  }
+}
+</script>
+
+<style scoped>
+.hero {
+  padding: 36px 20px;
+  background: linear-gradient(90deg, rgba(236,249,255,1) 0%, rgba(245,251,255,1) 100%);
+  border-radius: 8px;
+  margin-bottom: 18px;
+}
+.hero-inner { display:flex; gap:24px; align-items:flex-start; max-width:1100px; margin:0 auto; }
+.hero-left { flex:1; }
+.hero-title { margin:0 0 8px; font-size:28px; color:#0b1220; font-weight:700; }
+.lead { margin:0 0 18px; color:#64748b; }
+
+.category-grid {
+  display:grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap:12px;
+  margin-top:8px;
+}
+.cat-card {
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:6px;
+  padding:18px;
+  border-radius:10px;
+  background:#fff;
+  box-shadow: 0 4px 16px rgba(15,99,254,0.04);
+  border:1px solid rgba(11,17,34,0.04);
+  cursor:pointer;
+  text-align:center;
+}
+.cat-num { font-weight:800; font-size:20px; color:#0f172a; }
+.cat-label { font-size:13px; color:#64748b; }
+
+/* 콘텐츠 레이아웃 */
+.content-row { display:flex; gap:16px; margin-top:18px; max-width:1100px; margin-left:auto; margin-right:auto; padding:0 20px; box-sizing:border-box; }
+.left-col { flex:1; display:flex; flex-direction:column; gap:12px; }
+.right-col { width:320px; display:flex; flex-direction:column; gap:12px; }
+
+/* responsive: 모바일에서 2열 */
+@media (max-width:1000px) {
+  .category-grid { grid-template-columns: repeat(2, 1fr); }
+  .hero-inner { flex-direction:column; }
+  .content-row { flex-direction:column; padding:0 12px; }
+  .right-col { width:100%; }
+}
+</style>
