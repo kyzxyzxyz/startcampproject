@@ -1,16 +1,18 @@
 <template>
   <div class="lang-switcher" role="navigation" aria-label="language switcher">
-    <button :class="['lang-btn', { active: current === 'ko' }]" @click="set('ko')">KO</button>
-    <button :class="['lang-btn', { active: current === 'en' }]" @click="set('en')">EN</button>
+    <BaseButton variant="ghost" size="sm" :class="{ active: current === 'ko' }" @click="set('ko')">KO</BaseButton>
+    <BaseButton variant="ghost" size="sm" :class="{ active: current === 'en' }" @click="set('en')">EN</BaseButton>
   </div>
 </template>
 
 <script>
 import { computed, onMounted } from 'vue'
 import i18n from '../i18n'
+import BaseButton from './BaseButton.vue'
 
 export default {
   name: 'LanguageSwitcher',
+  components: { BaseButton },
   setup() {
     const current = computed(() => {
       try { return i18n.global.locale.value } catch(e){ return 'ko' }
@@ -38,18 +40,5 @@ export default {
 
 <style scoped>
 .lang-switcher { display:flex; gap:6px; align-items:center; }
-
-.lang-btn {
-  background: transparent;
-  border: none;
-  color: #2563eb;
-  font-weight: 600;
-  cursor: pointer;
-  padding: 6px 8px;
-  font-size: 14px;
-}
-.lang-btn.active {
-  text-decoration: underline;
-  color: #2563eb;
-}
+.lang-switcher .active { text-decoration: underline; }
 </style>

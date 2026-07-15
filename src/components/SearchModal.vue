@@ -1,16 +1,16 @@
 <template>
   <div v-if="visible" class="sm-overlay" @click.self="close" @keydown.esc="close" tabindex="-1">
-    <div class="sm-modal" role="dialog" aria-modal="true">
-      <div class="sm-header">
+    <div class="sm-modal modal-card" role="dialog" aria-modal="true">
+      <div class="sm-header" style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid rgba(11,17,34,0.04)">
         <strong>검색</strong>
-        <button class="close-btn" @click="close" aria-label="닫기">✕</button>
+        <BaseButton variant="ghost" size="sm" @click="close" aria-label="닫기">✕</BaseButton>
       </div>
 
-      <div class="sm-body">
+      <div class="sm-body" style="padding:12px 16px;">
         <div class="search-row">
           <input v-model="q" ref="qInput" @keydown.enter="doSearch" placeholder="검색어를 입력하세요" />
-          <button class="btn primary" @click="doSearch">검색</button>
-          <button class="btn primary header-like" @click="clear">초기화</button>
+          <BaseButton variant="primary" @click="doSearch">검색</BaseButton>
+          <BaseButton variant="ghost" @click="clear">초기화</BaseButton>
         </div>
 
         <div v-if="loading" class="muted">검색 중...</div>
@@ -31,11 +31,13 @@
 <script>
 import { ref } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
+import BaseButton from './BaseButton.vue'
 import { loadAllData, simpleRank } from '../utils/dataSearch'
 import { loadPosts } from '../utils/storage'
 
 export default {
   name: 'SearchModal',
+  components: { BaseButton },
   setup(_, { expose }) {
     const visible = ref(false)
     const q = ref('')
@@ -63,7 +65,6 @@ export default {
       if (!term) return
       loading.value = true
 
-      // 장소 검색
       const places = simpleRank(term, placeCache, 30).map(item => ({
         type: 'place',
         typeLabel: '장소',
@@ -75,7 +76,6 @@ export default {
         raw: item
       }))
 
-      // 게시글 검색
       let posts = []
       try { posts = loadPosts() } catch(e){ posts = [] }
       const qlower = term.toLowerCase()
@@ -116,7 +116,6 @@ export default {
           try { window.dispatchEvent(new CustomEvent('goto-poi', { detail: { lat: r.lat, lon: r.lon, title: r.title, raw: r.raw } })) } catch(e){}
         })
       } else if (r.type === 'post') {
-        // 우선: 게시글이 가진 고유 ID로 상세 페이지로 이동
         const pid = r.postId || (r.raw && r.raw.id)
         if (pid) {
           try {
@@ -126,7 +125,6 @@ export default {
           return
         }
 
-        // 만약 POI 연결이 있는 게시글일 경우(예: poiId)에는 기존 동작 유지(지도 이동 또는 게시글 열기)
         if (r.poiId) {
           if (!placeCache.length) placeCache = await loadAllData().catch(()=>[])
           const match = placeCache.find(p => String(p.contentid || p.contentId || '') === String(r.poiId))
@@ -142,7 +140,6 @@ export default {
           close(); return
         }
 
-        // 최종 폴백: 기존처럼 open-post 이벤트 발행 후 커뮤니티로 이동
         try { window.dispatchEvent(new CustomEvent('open-post', { detail: r.raw })) } catch(e){}
         router.push('/community').catch(()=>{})
       }
@@ -156,45 +153,15 @@ export default {
 </script>
 
 <style scoped>
-:root {
-  --primary: #2563eb;
-}
-
-/* overlay/modal */
 .sm-overlay { position:fixed; inset:0; background:rgba(2,6,23,0.48); display:flex; align-items:center; justify-content:center; z-index:99999; }
 .sm-modal { width:min(720px,96%); max-height:80vh; background:#fff; border-radius:10px; overflow:auto; }
-
-/* header */
-.sm-header { display:flex; align-items:center; justify-content:space-between; padding:12px 16px; border-bottom:1px solid rgba(11,17,34,0.04); }
-.close-btn { border:none; background:transparent; font-size:16px; cursor:pointer; }
 
 /* body */
 .sm-body { padding:12px 16px; }
 .search-row { display:flex; gap:8px; align-items:center; margin-bottom:12px; }
 .search-row input { flex:1; padding:8px 10px; border-radius:8px; border:1px solid rgba(11,17,34,0.06); box-sizing:border-box; }
 
-/* 헤더 버튼과 정확히 동일한 스타일을 모달 버튼에 강제 적용 */
-.search-row .btn.primary,
-.search-row .btn.primary.header-like,
-.search-row .btn.header-like {
-  display:inline-flex !important;
-  align-items:center !important;
-  justify-content:center !important;
-  padding: 8px 12px !important;
-  border-radius: 12px !important;
-  font-weight:700 !important;
-  font-size:14px !important;
-  min-height:36px !important;
-  min-width:76px !important;
-  box-shadow: 0 6px 18px rgba(15,99,254,0.12) !important;
-  background: var(--primary) !important;
-  color: #fff !important;
-  border: none !important;
-  cursor: pointer !important;
-  box-sizing: border-box !important;
-}
-
-/* 결과 리스트 */
+/* results */
 .result-list { list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:8px; }
 .result-item { display:flex; flex-direction:column; gap:4px; padding:8px; border-radius:8px; background:#fbfdff; border:1px solid rgba(11,17,34,0.03); }
 .result-link { background:transparent; border:none; color:var(--primary); font-weight:700; cursor:pointer; text-align:left; padding:0; }

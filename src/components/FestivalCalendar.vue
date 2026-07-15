@@ -1,15 +1,15 @@
 <template>
   <div class="festival-calendar">
     <div v-if="showDateControls" class="calendar-toolbar">
-      <button type="button" class="nav-btn" @click="goPrev">
+      <BaseButton variant="ghost" size="sm" class="nav-btn" @click="goPrev">
         {{ isMonthView ? '◀ 이전달' : '◀ 전주' }}
-      </button>
+      </BaseButton>
 
       <div class="calendar-title">{{ currentLabel }}</div>
 
-      <button type="button" class="nav-btn" @click="goNext">
+      <BaseButton variant="ghost" size="sm" class="nav-btn" @click="goNext">
         {{ isMonthView ? '다음달 ▶' : '다음주 ▶' }}
-      </button>
+      </BaseButton>
     </div>
 
     <div v-if="isMonthView" class="month-grid">
@@ -68,6 +68,7 @@
 
 <script>
 import { ref, computed, onMounted } from 'vue'
+import BaseButton from './BaseButton.vue'
 
 function ymdFromTourTime(ts) {
   if (!ts || typeof ts !== 'string') return null
@@ -91,15 +92,13 @@ function hashStringToInt(str) {
   return h
 }
 
-// pastel color generator
 function colorFromString(str) {
   const h = hashStringToInt(str) % 360
-  const s = 40 + (hashStringToInt(str + 's') % 25) // 40% - 64%
-  const l = 74 + (hashStringToInt(str + 'l') % 11) // 74% - 84%
+  const s = 40 + (hashStringToInt(str + 's') % 25)
+  const l = 74 + (hashStringToInt(str + 'l') % 11)
   return `hsl(${h}, ${s}%, ${l}%)`
 }
 
-// choose readable text color against pastel bg
 function readableTextColor(bg) {
   const m = bg.match(/hsl\(\s*([0-9]+)\s*,\s*([0-9]+)%\s*,\s*([0-9]+)%\s*\)/i)
   if (m && m[3]) {
@@ -111,6 +110,7 @@ function readableTextColor(bg) {
 
 export default {
   name: 'FestivalCalendar',
+  components: { BaseButton },
   props: {
     compact: { type: Boolean, default: false },
     showDateControls: { type: Boolean, default: false },
@@ -282,16 +282,6 @@ export default {
   font-size: 14px;
 }
 
-.nav-btn {
-  border: 1px solid #dbeafe;
-  background: #f8fbff;
-  color: #2563eb;
-  padding: 6px 10px;
-  border-radius: 999px;
-  cursor: pointer;
-  font-size: 13px;
-}
-
 /* grids */
 .week-grid,
 .month-grid {
@@ -303,13 +293,11 @@ export default {
   grid-template-columns: repeat(7, 1fr);
 }
 
-/* Make month grid 7 columns and uniform row heights */
 .month-grid {
   grid-template-columns: repeat(7, 1fr);
-  grid-auto-rows: 150px; /* uniform height per row */
+  grid-auto-rows: 150px;
 }
 
-/* day card */
 .day-card {
   border: 1px solid #e2e8f0;
   border-radius: 10px;
@@ -323,57 +311,14 @@ export default {
   overflow: hidden;
 }
 
-/* style when date is outside current month */
-.day-card.other-month {
-  opacity: 0.55;
-}
+.day-card.other-month { opacity:0.55; }
 
-/* top row (name + number) */
-.day-top {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  gap: 8px;
-}
+.day-top { display:flex; justify-content:space-between; align-items:baseline; gap:8px; }
+.day-name { font-size:12px; color:#64748b; font-weight:700; }
+.day-number { font-size:16px; font-weight:700; color:#0f172a; }
 
-.day-name {
-  font-size: 12px;
-  color: #64748b;
-  font-weight: 700;
-}
-
-.day-number {
-  font-size: 16px;
-  font-weight: 700;
-  color: #0f172a;
-}
-
-/* events area: allow scrolling if many events but keep fixed cell height */
-.day-events {
-  margin-top: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  overflow-y: auto;
-  padding-right: 4px; /* for scrollbar breathing room */
-}
-
-/* chips: allow wrapping so festival names show on multiple lines */
-.event-chip {
-  font-size: 12px;
-  border-radius: 6px;
-  padding: 6px 8px;
-  line-height: 1.2;
-  white-space: normal; /* allow wrap */
-  word-break: break-word;
-  overflow: visible;
-  text-overflow: clip;
-  box-shadow: 0 1px 0 rgba(15,17,26,0.04) inset;
-}
-
-/* empty placeholder */
-.empty {
-  font-size: 11px;
-  color: #94a3b8;
-}
+.day-events { margin-top:0; display:flex; flex-direction:column; gap:6px; overflow-y:auto; padding-right:4px; }
+.event-chip { font-size:12px; border-radius:6px; padding:6px 8px; line-height:1.2; white-space:normal; word-break:break-word; overflow:visible; text-overflow:clip; box-shadow: 0 1px 0 rgba(15,17,26,0.04) inset; }
+.empty { font-size:11px; color:#94a3b8; }
+.nav-btn { padding:6px 8px; border-radius:8px; }
 </style>

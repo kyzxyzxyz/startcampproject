@@ -1,21 +1,18 @@
 <template>
   <div>
     <div class="floating-chat" aria-hidden="false">
-      <button class="floating-chat-btn" @click="open" aria-label="챗봇 열기">
+      <BaseButton class="floating-chat-btn" @click="open" variant="primary" size="lg" aria-label="챗봇 열기">
         <svg class="chat-icon" width="28" height="28" viewBox="0 0 24 24" fill="none" aria-hidden>
-          <path d="M21 15a2 2 0 0 1-2 2H8l-5 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v10z" stroke="#2563eb" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
-          <circle cx="8.5" cy="11.5" r="0.9" fill="#2563eb"/>
-          <circle cx="11.5" cy="11.5" r="0.9" fill="#2563eb"/>
-          <circle cx="14.5" cy="11.5" r="0.9" fill="#2563eb"/>
+          <path d="M21 15a2 2 0 0 1-2 2H8l-5 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v10z" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
-      </button>
+      </BaseButton>
     </div>
 
     <div v-if="visible" class="chat-modal-overlay" @click.self="close">
-      <div class="chat-modal" role="dialog" aria-modal="true">
+      <div class="chat-modal modal-card" role="dialog" aria-modal="true">
         <div class="chat-header">
           <strong>{{ $t('app.chatTitle') }}</strong>
-          <button class="close-btn" @click="close" aria-label="닫기">✕</button>
+          <BaseButton variant="ghost" size="sm" @click="close">✕</BaseButton>
         </div>
 
         <div class="chat-body">
@@ -29,9 +26,10 @@
 <script>
 import { ref } from 'vue'
 import ChatBot from './ChatBot.vue'
+import BaseButton from './BaseButton.vue'
 
 export default {
-  components: { ChatBot },
+  components: { ChatBot, BaseButton },
   setup(_, { expose }) {
     const visible = ref(false)
     function open(){ visible.value = true }
@@ -48,25 +46,23 @@ export default {
   right: 20px;
   bottom: 20px;
   z-index: 99999;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  pointer-events: auto;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  pointer-events:auto;
 }
 .floating-chat-btn {
-  width: 64px;
-  height: 64px;
-  border-radius: 50%;
-  background: white;
-  border: 4px solid rgba(37,99,235,0.12);
+  border-radius: 999px;
+  width:64px;
+  height:64px;
   display:flex;
   align-items:center;
   justify-content:center;
-  cursor: pointer;
   padding:0;
-  box-shadow: 0 6px 18px rgba(2,6,23,0.08);
+  box-shadow:0 6px 18px rgba(2,6,23,0.08);
 }
 
+/* overlay */
 .chat-modal-overlay {
   position: fixed;
   inset: 0;
@@ -76,9 +72,12 @@ export default {
   justify-content:center;
   z-index: 99998;
 }
+
+/* responsive modal */
 .chat-modal {
-  width: min(960px, 96%);
+  width: clamp(320px, 90vw, 1100px);
   max-height: 95vh;
+  height: auto;
   background: white;
   border-radius: 12px;
   overflow: hidden;
@@ -87,15 +86,30 @@ export default {
   box-shadow: 0 20px 60px rgba(2,6,23,0.2);
   z-index: 99999;
 }
-.chat-header { display:flex; align-items:center; justify-content:space-between; padding:12px 16px; border-bottom:1px solid rgba(15,23,42,0.04); background: linear-gradient(90deg,#f8fafc,#ffffff); }
-.close-btn { border:none; background:transparent; font-size:16px; cursor:pointer; }
 
+.chat-header {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:12px 16px;
+  border-bottom:1px solid rgba(15,23,42,0.04);
+  background: linear-gradient(90deg,#f8fafc,#ffffff);
+}
+
+/* body은 내용에 따라 크기가 조절되고, 내부(히스토리)는 필요 시 스크롤 */
 .chat-body {
   padding:12px;
-  overflow:hidden;
   display:flex;
   flex-direction:column;
-  min-height: 640px;
+  flex: 0 1 auto;
+  min-height: 0;
   max-height: calc(95vh - 56px);
+  overflow: visible;
+}
+
+/* 작은 화면용 세부 조정 */
+@media (max-width: 480px) {
+  .chat-modal { width: 96vw; border-radius: 8px; }
+  .chat-body { padding: 8px; }
 }
 </style>

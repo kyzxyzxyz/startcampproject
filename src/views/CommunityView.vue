@@ -6,13 +6,13 @@
         <p class="muted">{{ $t('board.listTitle') }}</p>
       </div>
       <div>
-        <button class="btn primary" @click="goWrite">{{ $t('app.myPost') }}</button>
+        <BaseButton variant="primary" @click="goWrite">{{ $t('app.myPost') }}</BaseButton>
       </div>
     </div>
 
     <div class="category-bar" style="margin:12px 0;">
-      <button :class="['cat-btn',{active:selected===null}]" @click="select(null)">{{ $t('board.all') }}</button>
-      <button v-for="c in categories" :key="c.key" :class="['cat-btn',{active:selected===c.value}]" @click="select(c.value)">{{ $t(`categories.${c.key}`) }}</button>
+      <BaseButton :class="['cat-btn',{active:selected===null}]" variant="ghost" @click="select(null)">{{ $t('board.all') }}</BaseButton>
+      <BaseButton v-for="c in categories" :key="c.key" :class="['cat-btn',{active:selected===c.value}]" variant="ghost" @click="select(c.value)">{{ $t(`categories.${c.key}`) }}</BaseButton>
     </div>
 
     <BoardList :category="selected" :poiId="null" />
@@ -23,9 +23,10 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import BoardList from '../components/BoardList.vue'
+import BaseButton from '../components/BaseButton.vue'
 
 export default {
-  components: { BoardList },
+  components: { BoardList, BaseButton },
   setup() {
     const router = useRouter()
     const categories = [
@@ -55,6 +56,5 @@ export default {
 <style scoped>
 .muted { color:#64748b; margin:0; }
 .cat-btn { margin-right:8px; padding:8px 12px; border-radius:8px; border:1px solid rgba(11,17,34,0.06); background:#fff; cursor:pointer; }
-.cat-btn.active { background:#0f62fe; color:#fff; border-color:#0f62fe; }
-.btn.primary { background:#2563eb; color:#fff; border:none; padding:8px 12px; border-radius:8px; }
+.cat-btn.active { background:var(--primary); color:#fff; border-color:var(--primary); }
 </style>
