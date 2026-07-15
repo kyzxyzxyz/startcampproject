@@ -23,7 +23,13 @@
     "delete": "Delete",
     "backToList": "Back to list",
     "confirmDeletePrompt": "Enter delete password",
-    "passwordPlaceholder": "Enter password"
+    "passwordPlaceholder": "Enter password",
+    "contactEmail": "Contact email",
+    "contactPhone": "Contact",
+    "subscribePlaceholder": "Enter your email",
+    "subscribeButton": "Subscribe",
+    "subscribeNote": "Receive newsletter and updates by email.",
+    "chatTitle": "Chatbot"
   },
   "categories": {
     "tourist": "Tourist spots",
@@ -54,5 +60,39 @@
     "title": "Post detail",
     "editTitle": "Edit (password required)",
     "deleteTitle": "Delete (enter password)"
+  },
+  "chat": {
+    "greeting": "Hello — how can I help?",
+    "generating": "Generating response...",
+    "placeholder": "Ask a question (e.g. Recommend 3 tourist spots near Geumosan)",
+    "send": "Send",
+    "preset1": "Recommend spots",
+    "preset1_text": "Recommend nearby tourist spots",
+    "preset2": "Festival schedule",
+    "preset2_text": "Tell me festival schedule in Gumi this month",
+    "preset3": "Restaurant suggestions",
+    "preset3_text": "Recommend nearby restaurants",
+    "clear": "Clear",
+    "errorPrefix": "Error"
+  },
+  "comment": {
+    "title": "Comments ({count})",
+    "authorPlaceholder": "Author",
+    "contentPlaceholder": "Write a comment.",
+    "replyPlaceholder": "Write a reply.",
+    "submit": "Post",
+    "reply": "Reply",
+    "replySubmit": "Post reply",
+    "edit": "Edit",
+    "editing": "Editing",
+    "save": "Save",
+    "delete": "Delete",
+    "deleteConfirm": "Confirm delete",
+    "confirm": "Confirm",
+    "errContent": "Please enter comment content.",
+    "errSubmit": "Failed to post",
+    "errEdit": "Failed to edit",
+    "errDelete": "Failed to delete",
+    "authorFallback": "Author"
   }
 }

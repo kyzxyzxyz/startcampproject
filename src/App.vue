@@ -13,8 +13,8 @@
         </div>
 
         <div class="header-actions">
-          <button class="btn primary" @click="goCommunity">커뮤니티</button>
-          <button class="btn primary" @click="goMap">지도</button>
+          <button class="btn primary" @click="goCommunity">{{ $t('app.communityView') }}</button>
+          <button class="btn primary" @click="goMap">{{ $t('app.mapView') }}</button>
           <LanguageSwitcher />
           <button class="search-btn" aria-label="검색" @click="openSearchModal">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden>
@@ -33,16 +33,17 @@
     <footer class="site-footer">
       <div class="footer-inner">
         <div class="contact">
-          <div class="contact-item">컨택 이메일: <a href="mailto:contact@example.com">contact@example.com</a></div>
-          <div class="contact-item">연락처: <a href="tel:+821012345678">+82 10-1234-5678</a></div>
+          <div class="contact-item">{{ $t('app.contactEmail') }}: <a href="mailto:contact@example.com">contact@example.com</a></div>
+          <div class="contact-item">{{ $t('app.contactPhone') }}: <a href="tel:+821012345678">+82 10-1234-5678</a></div>
         </div>
 
         <div class="subscribe">
           <form class="subscribe-form" @submit.prevent="subscribe">
-            <input id="sub-email" v-model="email" type="email" placeholder="이메일을 입력하세요" />
-            <button type="submit" class="btn primary">구독</button>
+            <input id="sub-email" ref="subInput" v-model="email" type="email" :placeholder="$t('app.subscribePlaceholder')" aria-describedby="sub-error" />
+            <button type="submit" class="btn primary">{{ $t('app.subscribeButton') }}</button>
           </form>
-          <p class="subscribe-note">뉴스레터와 업데이트를 이메일로 받아보세요.</p>
+          <p id="sub-error" class="subscribe-error" v-if="subscribeError">{{ subscribeError }}</p>
+          <p class="subscribe-note">{{ $t('app.subscribeNote') }}</p>
         </div>
       </div>
     </footer>
@@ -54,7 +55,7 @@
 </template>
 
 <script>
-import { ref } from 'vue'
+import { ref, nextTick } from 'vue'
 import ChatModal from './components/ChatModal.vue'
 import CommunityModal from './components/CommunityModal.vue'
 import LanguageSwitcher from './components/LanguageSwitcher.vue'
@@ -65,14 +66,32 @@ export default {
   setup() {
     const searchModal = ref(null)
     const email = ref('')
+    const subInput = ref(null)
+    const subscribeError = ref('')
 
     function openSearchModal() {
       if (searchModal.value && searchModal.value.open) searchModal.value.open()
     }
 
-    function subscribe() {
+    async function focusSubInput() {
+      await nextTick()
+      setTimeout(() => {
+        try {
+          const el = subInput.value || document.getElementById('sub-email')
+          if (el && typeof el.focus === 'function') {
+            el.focus()
+            if (typeof el.select === 'function') el.select()
+            if (typeof el.setSelectionRange === 'function') el.setSelectionRange(0, 9999)
+          }
+        } catch (e) {}
+      }, 100)
+    }
+
+    async function subscribe() {
+      subscribeError.value = ''
       if (!email.value) {
-        alert('이메일을 입력하세요.')
+        subscribeError.value = '이메일을 입력하세요.'
+        await focusSubInput()
         return
       }
       try {
@@ -81,13 +100,15 @@ export default {
         localStorage.setItem('subscribers', JSON.stringify(subs))
         alert('구독해주셔서 감사합니다!')
         email.value = ''
+        await focusSubInput()
       } catch (e) {
         console.error(e)
-        alert('구독 처리 중 오류가 발생했습니다.')
+        subscribeError.value = '구독 처리 중 오류가 발생했습니다.'
+        await focusSubInput()
       }
     }
 
-    return { searchModal, openSearchModal, email, subscribe }
+    return { searchModal, openSearchModal, email, subscribe, subInput, subscribeError }
   },
   methods: {
     goCommunity() {
@@ -206,6 +227,7 @@ export default {
 .subscribe-form { display:flex; gap:8px; align-items:center; }
 .subscribe-form input[type="email"] { padding:8px 10px; border:1px solid rgba(11,17,34,0.06); border-radius:10px; min-width:220px; }
 .subscribe-note { font-size:13px; color:#64748b; margin:0; }
+.subscribe-error { color:#dc2626; font-size:13px; margin:0 0 4px 0; }
 @media (max-width:700px) {
   .footer-inner { flex-direction:column; align-items:flex-start; }
   .subscribe { width:100%; align-items:flex-start; }

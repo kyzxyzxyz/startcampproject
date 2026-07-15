@@ -1,21 +1,19 @@
 <template>
   <div class="chat-wrapper">
-    <div class="header"><strong>지역 챗봇</strong></div>
-
     <div class="history" ref="historyRef">
       <ChatMessage v-for="(m, i) in history" :key="i" :role="m.role" :text="m.text" />
     </div>
 
     <div class="input-row">
-      <input v-model="q" @keydown.enter="send" placeholder="질문을 입력하세요. (예: 금오산 근처 추천 관광지)" />
+      <input v-model="q" @keydown.enter="send" :placeholder="t('chat.placeholder')" />
+      <button class="btn primary" @click="send">{{ t('chat.send') }}</button>
     </div>
 
     <div class="quick">
-      <button class="btn primary" @click="send">전송</button>
-      <button class="btn primary" @click="preset('금오산 근처 추천 관광지 3곳 알려줘')">관광지 추천</button>
-      <button class="btn primary" @click="preset('이번 달 구미 축제 일정 알려줘')">축제 일정</button>
-      <button class="btn primary" @click="preset('모범음식점 추천해줘')">음식점 위치</button>
-      <button class="btn reset" @click="clear">초기화</button>
+      <button class="btn primary" @click="presetKey(1)">{{ t('chat.preset1') }}</button>
+      <button class="btn primary" @click="presetKey(2)">{{ t('chat.preset2') }}</button>
+      <button class="btn primary" @click="presetKey(3)">{{ t('chat.preset3') }}</button>
+      <button class="btn reset" @click="clear">{{ t('chat.clear') }}</button>
     </div>
   </div>
 </template>
@@ -25,12 +23,14 @@ import { ref, onMounted, nextTick } from 'vue'
 import ChatMessage from './ChatMessage.vue'
 import { loadAllData, simpleRank } from '../utils/dataSearch'
 import { callOpenAI } from '../utils/openai'
+import { useI18n } from 'vue-i18n'
 
 export default {
   components: { ChatMessage },
   setup() {
+    const { t } = useI18n()
     const q = ref('')
-    const history = ref([{ role: 'assistant', text: '안녕하세요 무엇을 도와드릴까요?' }])
+    const history = ref([{ role: 'assistant', text: t('chat.greeting') }])
     const dataCache = ref([])
     const historyRef = ref(null)
 
@@ -56,8 +56,8 @@ export default {
       history.value.push({ role: 'user', text: userText })
 
       const top = simpleRank(userText, dataCache.value, 5)
-      const summary = top.map(t =>
-        `- ${t.title || ''}${t.addr1 ? ' / ' + t.addr1 : ''}${t.mapx && t.mapy ? ` (lon:${t.mapx},lat:${t.mapy})` : ''}`
+      const summary = top.map(item =>
+        `- ${item.title || ''}${item.addr1 ? ' / ' + item.addr1 : ''}${item.mapx && item.mapy ? ` (lon:${item.mapx},lat:${item.mapy})` : ''}`
       ).join('\n')
 
       const systemContext = `참고자료(상위 ${top.length}개):\n${summary}\n위 자료를 참고하여 질문에 답변해 주세요. 출처: 한국관광공사 Tour API.`
@@ -68,7 +68,7 @@ export default {
         { role: 'user', content: userText }
       ]
 
-      history.value.push({ role: 'assistant', text: '응답을 생성 중입니다...' })
+      history.value.push({ role: 'assistant', text: t('chat.generating') })
 
       await nextTick()
       scrollToBottom(true)
@@ -77,7 +77,7 @@ export default {
         const ai = await callOpenAI(messages)
         history.value[history.value.length - 1].text = ai
       } catch (e) {
-        history.value[history.value.length - 1].text = `오류: ${e.message}`
+        history.value[history.value.length - 1].text = `${t('chat.errorPrefix')}: ${e.message}`
       }
 
       await nextTick()
@@ -86,23 +86,29 @@ export default {
     }
 
     function clear() {
-      history.value = [{ role: 'assistant', text: '안녕하세요 무엇을 도와드릴까요?' }]
+      history.value = [{ role: 'assistant', text: t('chat.greeting') }]
       nextTick().then(() => scrollToBottom(false))
     }
 
-    function preset(t) { q.value = t; send() }
+    function presetKey(n) {
+      // preset text keys: chat.preset1_text, chat.preset2_text, chat.preset3_text
+      const key = `chat.preset${n}_text`
+      const text = t(key)
+      q.value = text
+      send()
+    }
 
-    return { q, history, send, clear, preset, historyRef }
+    return { q, history, send, clear, presetKey, historyRef, t }
   }
 }
 </script>
 
 <style>
 .chat-wrapper { border:1px solid rgba(11,17,34,0.06); padding:12px; width:100%; background:#fff; border-radius:10px; box-shadow:var(--shadow); display:flex; flex-direction:column; height:100%; }
-.header { margin-bottom:8px; }
 .history { overflow:auto; padding:8px; border:1px solid #eee; border-radius:6px; background:#fafafa; flex:1 1 auto; min-height:400px; }
-.input-row { margin-top:8px; display:flex; gap:8px; }
+.input-row { margin-top:8px; display:flex; gap:8px; align-items:center; }
 .input-row input { flex:1; padding:10px; border-radius:8px; border:1px solid rgba(11,17,34,0.06); }
+.input-row .btn { padding:10px 14px; }
 .quick { margin-top:8px; display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
 .quick .btn { white-space:nowrap; padding:8px 12px; border-radius:8px; font-weight:600; }
 .quick .btn.reset { margin-left:auto; }

@@ -14,7 +14,7 @@
     <div v-if="visible" class="chat-modal-overlay" @click.self="close">
       <div class="chat-modal" role="dialog" aria-modal="true">
         <div class="chat-header">
-          <strong>지역 챗봇</strong>
+          <strong>{{ $t('app.chatTitle') }}</strong>
           <button class="close-btn" @click="close" aria-label="닫기">✕</button>
         </div>
 
@@ -67,7 +67,6 @@ export default {
   box-shadow: 0 6px 18px rgba(2,6,23,0.08);
 }
 
-/* overlay + modal */
 .chat-modal-overlay {
   position: fixed;
   inset: 0;
@@ -79,7 +78,7 @@ export default {
 }
 .chat-modal {
   width: min(960px, 96%);
-  max-height: 95vh;           /* 증가: 화면의 95% 높이 */
+  max-height: 95vh;
   background: white;
   border-radius: 12px;
   overflow: hidden;
@@ -91,13 +90,12 @@ export default {
 .chat-header { display:flex; align-items:center; justify-content:space-between; padding:12px 16px; border-bottom:1px solid rgba(15,23,42,0.04); background: linear-gradient(90deg,#f8fafc,#ffffff); }
 .close-btn { border:none; background:transparent; font-size:16px; cursor:pointer; }
 
-/* body: ChatBot가 full-height을 쓸 수 있게 flex로 확장 */
 .chat-body {
   padding:12px;
   overflow:hidden;
   display:flex;
   flex-direction:column;
-  min-height: 640px;            /* 충분히 세로 길이 확보 */
-  max-height: calc(95vh - 56px); /* 헤더 높이(약 56) 빼기 */
+  min-height: 640px;
+  max-height: calc(95vh - 56px);
 }
 </style>

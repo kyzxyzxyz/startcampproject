@@ -1,10 +1,10 @@
 <template>
   <div>
-    <h3>게시글 목록</h3>
+    <h3>{{ t('board.listTitle') }}</h3>
     <div class="search-row">
-      <input ref="searchInput" class="search-input" v-model="q" placeholder="검색(제목/내용)" />
-      <button @click="doSearch">검색</button>
-      <button @click="clearSearch">전체</button>
+      <input ref="searchInput" class="search-input" v-model="q" :placeholder="t('app.searchPlaceholder')" />
+      <button @click="doSearch">{{ t('board.search') }}</button>
+      <button @click="clearSearch">{{ t('board.all') }}</button>
     </div>
 
     <ul class="post-list">
@@ -15,13 +15,13 @@
     </ul>
 
     <div v-if="pages>1" class="pager">
-      <button @click="prev" :disabled="page===1">이전</button>
+      <button @click="prev" :disabled="page===1">{{ t('board.previous') }}</button>
       <span>{{page}} / {{pages}}</span>
-      <button @click="next" :disabled="page===pages">다음</button>
+      <button @click="next" :disabled="page===pages">{{ t('board.next') }}</button>
     </div>
 
     <div v-if="filtered.length===0">
-      <p>게시글이 없습니다.</p>
+      <p>{{ t('board.noPosts') }}</p>
     </div>
   </div>
 </template>
@@ -30,6 +30,7 @@
 import { computed, ref, watch, onMounted, onBeforeUnmount } from 'vue'
 import { loadPosts } from '../utils/storage'
 import { useRoute, useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 
 export default {
   name: 'BoardList',
@@ -41,6 +42,7 @@ export default {
   },
   emits: ['refresh','open-post'],
   setup(props, { emit }) {
+    const { t } = useI18n()
     const route = useRoute()
     const router = useRouter()
     const q = ref('')
@@ -48,7 +50,6 @@ export default {
     const pageSize = 10
     const searchInput = ref(null)
 
-    // postsVersion: 전역 이벤트 발생 시 증가시켜 filtered를 재계산하도록 함
     const postsVersion = ref(0)
 
     const filtered = computed(() => {
@@ -83,16 +84,13 @@ export default {
 
     function formatDate(t){ return t ? new Date(t).toLocaleString() : '' }
 
-    // 전역 이벤트 수신: 게시글 변경 시 postsVersion 증가 -> filtered 재평가
     function onPostsChanged() {
       postsVersion.value++
       page.value = 1
     }
 
-    // 전역 이벤트: focus-board-search 수신 -> 포커스 및 (옵션) 쿼리로 검색 실행
     function onFocusBoardSearch(e) {
       try {
-        // e.detail?.q 가 있으면 검색어 설정 후 검색, 없으면 단순 포커스
         if (searchInput.value && typeof searchInput.value.focus === 'function') {
           searchInput.value.focus()
         }
@@ -112,10 +110,9 @@ export default {
       window.removeEventListener('focus-board-search', onFocusBoardSearch)
     })
 
-    // filtered가 변경되면 페이지가 범위를 벗어나는 것을 보정
     watch(filtered, () => { if(page.value>pages.value) page.value = pages.value })
 
-    return { q, page, pages, paged, doSearch, clearSearch, next, prev, filtered, openPost, formatDate, searchInput }
+    return { t, q, page, pages, paged, doSearch, clearSearch, next, prev, filtered, openPost, formatDate, searchInput }
   }
 }
 </script>
