@@ -3,21 +3,21 @@
     <h3>{{ t('board.listTitle') }}</h3>
     <div class="search-row">
       <input ref="searchInput" class="search-input" v-model="q" :placeholder="t('app.searchPlaceholder')" />
-      <button @click="doSearch">{{ t('board.search') }}</button>
-      <button @click="clearSearch">{{ t('board.all') }}</button>
+      <BaseButton variant="primary" @click="doSearch">{{ t('board.search') }}</BaseButton>
+      <BaseButton variant="ghost" @click="clearSearch">{{ t('board.all') }}</BaseButton>
     </div>
 
     <ul class="post-list">
       <li v-for="p in paged" :key="p.id" class="post-item">
-        <button class="post-link" @click="openPost(p)">{{ p.title }}</button>
+        <BaseButton variant="ghost" size="md" class="post-link" @click="openPost(p)">{{ p.title }}</BaseButton>
         <small class="post-meta"> — {{ formatDate(p.createdAt) }}</small>
       </li>
     </ul>
 
     <div v-if="pages>1" class="pager">
-      <button @click="prev" :disabled="page===1">{{ t('board.previous') }}</button>
+      <BaseButton variant="ghost" size="sm" @click="prev" :disabled="page===1">{{ t('board.previous') }}</BaseButton>
       <span>{{page}} / {{pages}}</span>
-      <button @click="next" :disabled="page===pages">{{ t('board.next') }}</button>
+      <BaseButton variant="ghost" size="sm" @click="next" :disabled="page===pages">{{ t('board.next') }}</BaseButton>
     </div>
 
     <div v-if="filtered.length===0">
@@ -31,9 +31,11 @@ import { computed, ref, watch, onMounted, onBeforeUnmount } from 'vue'
 import { loadPosts } from '../utils/storage'
 import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
+import BaseButton from './BaseButton.vue'
 
 export default {
   name: 'BoardList',
+  components: { BaseButton },
   props: {
     category: { type: String, default: null },
     poiId: { type: String, default: null },

@@ -6,7 +6,7 @@
         <p class="muted">여기에 글을 작성하세요. (비밀번호는 수정/삭제 시 필요)</p>
       </div>
       <div>
-        <button class="btn primary" @click="$router.push('/community')">커뮤니티 목록으로</button>
+        <BaseButton variant="ghost" @click="$router.push('/community')">커뮤니티 목록으로</BaseButton>
       </div>
     </div>
 
@@ -20,9 +20,10 @@
 import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import BoardEditor from '../components/BoardEditor.vue'
+import BaseButton from '../components/BaseButton.vue'
 
 export default {
-  components: { BoardEditor },
+  components: { BoardEditor, BaseButton },
   setup() {
     const route = useRoute()
     const router = useRouter()
@@ -47,5 +48,4 @@ export default {
 
 <style scoped>
 .muted { color:#64748b; margin:0; }
-.btn.ghost { background:transparent; border:1px solid rgba(11,17,34,0.06); padding:8px 12px; border-radius:8px; cursor:pointer; }
 </style>

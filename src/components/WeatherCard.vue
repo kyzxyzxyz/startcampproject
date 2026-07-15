@@ -5,7 +5,7 @@
         <p class="weather-label">현재 날씨</p>
         <h4>{{ city }}</h4>
       </div>
-      <button class="refresh-btn" @click="loadWeather">↻</button>
+      <BaseButton variant="ghost" size="sm" class="refresh-btn" @click="loadWeather">↻</BaseButton>
     </div>
 
     <div v-if="loading" class="weather-state">불러오는 중...</div>
@@ -30,6 +30,7 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
+import BaseButton from './BaseButton.vue'
 
 const city = '구미'
 const apiKey = import.meta.env.VITE_OPENWEATHER_API_KEY
@@ -101,12 +102,9 @@ onMounted(() => {
   color: #64748b;
 }
 .refresh-btn {
-  border: none;
-  background: #e0f2fe;
   border-radius: 999px;
   width: 32px;
   height: 32px;
-  cursor: pointer;
 }
 .weather-body {
   display: flex;

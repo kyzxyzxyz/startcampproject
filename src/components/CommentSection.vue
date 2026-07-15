@@ -8,7 +8,7 @@
       <textarea v-model="content" :placeholder="t('comment.contentPlaceholder')" rows="3"></textarea>
       <div class="error" v-if="newError">{{ newError }}</div>
       <div class="actions">
-        <button class="btn" @click="submit">{{ t('comment.submit') }}</button>
+        <BaseButton variant="primary" @click="submit">{{ t('comment.submit') }}</BaseButton>
       </div>
     </div>
 
@@ -22,9 +22,9 @@
             </div>
 
             <div class="item-actions">
-              <button class="link" @click="toggleReply(c.id)">{{ t('comment.reply') }}</button>
-              <button class="link" @click="startEdit(c)">{{ editingId === c.id ? t('comment.editing') : t('comment.edit') }}</button>
-              <button class="link" @click="startDelete(c)">{{ deletingId === c.id ? t('comment.confirm') : t('comment.delete') }}</button>
+              <BaseButton variant="ghost" size="sm" class="link" @click="toggleReply(c.id)">{{ t('comment.reply') }}</BaseButton>
+              <BaseButton variant="ghost" size="sm" class="link" @click="startEdit(c)">{{ editingId === c.id ? t('comment.editing') : t('comment.edit') }}</BaseButton>
+              <BaseButton variant="ghost" size="sm" class="link" @click="startDelete(c)">{{ deletingId === c.id ? t('comment.confirm') : t('comment.delete') }}</BaseButton>
             </div>
           </div>
 
@@ -38,11 +38,11 @@
               :placeholder="t('app.passwordPlaceholder')"
               :ref="el => setEditRef(c.id, el)"
             />
-            <div class="error" v-if="editErrors[c.id]">{{ editErrors[c.id] }}</div>
             <div class="actions">
-              <button class="btn" @click="confirmEdit(c.id)">{{ t('comment.save') }}</button>
-              <button class="btn ghost" @click="cancelEdit">{{ t('app.close') }}</button>
+              <BaseButton variant="primary" @click="confirmEdit(c.id)">{{ t('comment.save') }}</BaseButton>
+              <BaseButton variant="ghost" @click="cancelEdit">{{ t('app.close') }}</BaseButton>
             </div>
+            <div class="error" v-if="editErrors[c.id]">{{ editErrors[c.id] }}</div>
           </div>
 
           <div v-if="deletingId === c.id" class="delete-area">
@@ -52,11 +52,11 @@
               :placeholder="t('app.passwordPlaceholder')"
               :ref="el => setDeleteRef(c.id, el)"
             />
-            <div class="error" v-if="deleteErrors[c.id]">{{ deleteErrors[c.id] }}</div>
             <div class="actions">
-              <button class="btn danger" @click="confirmDelete(c.id)">{{ t('comment.deleteConfirm') }}</button>
-              <button class="btn ghost" @click="cancelDelete">{{ t('app.close') }}</button>
+              <BaseButton variant="neutral" class="danger" @click="confirmDelete(c.id)">{{ t('comment.deleteConfirm') }}</BaseButton>
+              <BaseButton variant="ghost" @click="cancelDelete">{{ t('app.close') }}</BaseButton>
             </div>
+            <div class="error" v-if="deleteErrors[c.id]">{{ deleteErrors[c.id] }}</div>
           </div>
         </div>
 
@@ -70,11 +70,11 @@
             :ref="el => setReplyRef(c.id, el)"
           />
           <textarea v-model="replyContent" :placeholder="t('comment.replyPlaceholder')" rows="2"></textarea>
-          <div class="error" v-if="replyErrors[c.id]">{{ replyErrors[c.id] }}</div>
           <div class="actions">
-            <button class="btn" @click="submitReply(c.id)">{{ t('comment.replySubmit') }}</button>
-            <button class="btn ghost" @click="toggleReply(null)">{{ t('app.close') }}</button>
+            <BaseButton variant="primary" @click="submitReply(c.id)">{{ t('comment.replySubmit') }}</BaseButton>
+            <BaseButton variant="ghost" @click="toggleReply(null)">{{ t('app.close') }}</BaseButton>
           </div>
+          <div class="error" v-if="replyErrors[c.id]">{{ replyErrors[c.id] }}</div>
         </div>
 
         <!-- replies -->
@@ -86,8 +86,8 @@
                 <span class="time"> · {{ formatDate(r.createdAt) }}</span>
               </div>
               <div class="item-actions">
-                <button class="link" @click="startEdit(r)">{{ editingId === r.id ? t('comment.editing') : t('comment.edit') }}</button>
-                <button class="link" @click="startDelete(r)">{{ deletingId === r.id ? t('comment.confirm') : t('comment.delete') }}</button>
+                <BaseButton variant="ghost" size="sm" class="link" @click="startEdit(r)">{{ editingId === r.id ? t('comment.editing') : t('comment.edit') }}</BaseButton>
+                <BaseButton variant="ghost" size="sm" class="link" @click="startDelete(r)">{{ deletingId === r.id ? t('comment.confirm') : t('comment.delete') }}</BaseButton>
               </div>
             </div>
 
@@ -101,11 +101,11 @@
                 :placeholder="t('app.passwordPlaceholder')"
                 :ref="el => setEditRef(r.id, el)"
               />
-              <div class="error" v-if="editErrors[r.id]">{{ editErrors[r.id] }}</div>
               <div class="actions">
-                <button class="btn" @click="confirmEdit(r.id)">{{ t('comment.save') }}</button>
-                <button class="btn ghost" @click="cancelEdit">{{ t('app.close') }}</button>
+                <BaseButton variant="primary" @click="confirmEdit(r.id)">{{ t('comment.save') }}</BaseButton>
+                <BaseButton variant="ghost" @click="cancelEdit">{{ t('app.close') }}</BaseButton>
               </div>
+              <div class="error" v-if="editErrors[r.id]">{{ editErrors[r.id] }}</div>
             </div>
 
             <div v-if="deletingId === r.id" class="delete-area">
@@ -115,11 +115,11 @@
                 :placeholder="t('app.passwordPlaceholder')"
                 :ref="el => setDeleteRef(r.id, el)"
               />
-              <div class="error" v-if="deleteErrors[r.id]">{{ deleteErrors[r.id] }}</div>
               <div class="actions">
-                <button class="btn danger" @click="confirmDelete(r.id)">{{ t('comment.deleteConfirm') }}</button>
-                <button class="btn ghost" @click="cancelDelete">{{ t('app.close') }}</button>
+                <BaseButton variant="neutral" class="danger" @click="confirmDelete(r.id)">{{ t('comment.deleteConfirm') }}</BaseButton>
+                <BaseButton variant="ghost" @click="cancelDelete">{{ t('app.close') }}</BaseButton>
               </div>
+              <div class="error" v-if="deleteErrors[r.id]">{{ deleteErrors[r.id] }}</div>
             </div>
           </li>
         </ul>
@@ -132,9 +132,11 @@
 import { ref, reactive, computed, onMounted, watch, nextTick } from 'vue'
 import { getCommentsForPost, addComment, updateComment, deleteComment } from '../utils/storage'
 import { useI18n } from 'vue-i18n'
+import BaseButton from './BaseButton.vue'
 
 export default {
   name: 'CommentSection',
+  components: { BaseButton },
   props: { postId: { type: String, required: true } },
   setup(props) {
     const { t, locale } = useI18n()
@@ -242,7 +244,7 @@ export default {
       editingId.value = c.id
       editContent.value = c.content || ''
       editPasswords[c.id] = ''
-      nextTick(()=>{ if (editRefs[c.id]) editRefs[c.id].focus() })
+      nextTick(() => { if (editRefs[c.id]) editRefs[c.id].focus() })
     }
 
     async function confirmEdit(id) {
@@ -302,7 +304,6 @@ export default {
 </script>
 
 <style scoped>
-/* same styles as before */
 .card { background:#fff; padding:12px; border-radius:8px; border:1px solid rgba(11,17,34,0.04); margin-bottom:12px; }
 .comment-section { margin-top:18px; }
 .cs-title { margin:0 0 8px; font-size:16px; }
@@ -313,16 +314,33 @@ export default {
 .author { color:#0b1220; }
 .time { color:#64748b; font-size:12px; }
 .item-actions { display:flex; gap:8px; }
-.link { background:transparent; border:none; color:#2563eb; cursor:pointer; font-size:13px; }
+.link { background:transparent; border:none; color:#2563eb; cursor:pointer; font-size:13px; padding:0; }
 .content { margin-top:8px; color:#0b1220; white-space:pre-wrap; }
 .replies { list-style:none; padding-left:12px; margin-top:8px; }
 .comment-reply { padding:8px; border-left:3px solid #f1f5f9; margin-bottom:6px; border-radius:6px; }
+
+/* actions layout unchanged */
 .actions { display:flex; gap:8px; }
+
+/* New: stack delete/edit/reply areas so error sits below buttons */
+.edit-area,
+.delete-area,
+.reply-form {
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  margin-top:8px;
+}
+.edit-area textarea,
+.reply-form textarea { width:100%; box-sizing:border-box; padding:8px; border-radius:8px; border:1px solid rgba(11,17,34,0.06); }
+.delete-area input,
+.edit-area input,
+.reply-form input { padding:8px; border-radius:8px; border:1px solid rgba(11,17,34,0.06); width:100%; box-sizing:border-box; }
+
 .btn { padding:6px 10px; border-radius:8px; background:#2563eb; color:#fff; border:none; cursor:pointer; }
 .btn.ghost { background:transparent; border:1px solid rgba(11,17,34,0.06); color:#334155; }
 .btn.danger { background:#ef4444; }
-.edit-area textarea { width:100%; box-sizing:border-box; padding:8px; border-radius:8px; border:1px solid rgba(11,17,34,0.06); margin-top:8px; }
-.delete-area { margin-top:8px; display:flex; gap:8px; align-items:center; }
-.delete-area input { padding:8px; border-radius:8px; border:1px solid rgba(11,17,34,0.06); flex:1; }
-.error { color:#ef4444; margin-bottom:8px; font-size:13px; }
+.danger { background:#ef4444 !important; color:#fff; }
+
+.error { color:#ef4444; font-size:13px; }
 </style>

@@ -6,14 +6,14 @@
 
     <div class="input-row">
       <input v-model="q" @keydown.enter="send" :placeholder="t('chat.placeholder')" />
-      <button class="btn primary" @click="send">{{ t('chat.send') }}</button>
+      <BaseButton variant="primary" @click="send">{{ t('chat.send') }}</BaseButton>
     </div>
 
     <div class="quick">
-      <button class="btn primary" @click="presetKey(1)">{{ t('chat.preset1') }}</button>
-      <button class="btn primary" @click="presetKey(2)">{{ t('chat.preset2') }}</button>
-      <button class="btn primary" @click="presetKey(3)">{{ t('chat.preset3') }}</button>
-      <button class="btn reset" @click="clear">{{ t('chat.clear') }}</button>
+      <BaseButton variant="primary" @click="presetKey(1)">{{ t('chat.preset1') }}</BaseButton>
+      <BaseButton variant="primary" @click="presetKey(2)">{{ t('chat.preset2') }}</BaseButton>
+      <BaseButton variant="primary" @click="presetKey(3)">{{ t('chat.preset3') }}</BaseButton>
+      <BaseButton variant="neutral" class="reset-btn" @click="clear">{{ t('chat.clear') }}</BaseButton>
     </div>
   </div>
 </template>
@@ -24,9 +24,10 @@ import ChatMessage from './ChatMessage.vue'
 import { loadAllData, simpleRank } from '../utils/dataSearch'
 import { callOpenAI } from '../utils/openai'
 import { useI18n } from 'vue-i18n'
+import BaseButton from './BaseButton.vue'
 
 export default {
-  components: { ChatMessage },
+  components: { ChatMessage, BaseButton },
   setup() {
     const { t } = useI18n()
     const q = ref('')
@@ -91,7 +92,6 @@ export default {
     }
 
     function presetKey(n) {
-      // preset text keys: chat.preset1_text, chat.preset2_text, chat.preset3_text
       const key = `chat.preset${n}_text`
       const text = t(key)
       q.value = text
@@ -104,12 +104,32 @@ export default {
 </script>
 
 <style>
-.chat-wrapper { border:1px solid rgba(11,17,34,0.06); padding:12px; width:100%; background:#fff; border-radius:10px; box-shadow:var(--shadow); display:flex; flex-direction:column; height:100%; }
-.history { overflow:auto; padding:8px; border:1px solid #eee; border-radius:6px; background:#fafafa; flex:1 1 auto; min-height:400px; }
+.chat-wrapper {
+  border:1px solid rgba(11,17,34,0.06);
+  padding:12px;
+  width:100%;
+  background:#fff;
+  border-radius:10px;
+  box-shadow:var(--shadow);
+  display:flex;
+  flex-direction:column;
+  height: auto; /* 변경: 100% -> auto (빈공간 원인 제거) */
+}
+
+/* 히스토리 영역은 내용에 따라 작아지고, 길어지면 스크롤 */
+.history {
+  overflow:auto;
+  padding:8px;
+  border:1px solid #eee;
+  border-radius:6px;
+  background:#fafafa;
+  flex: 0 1 auto;
+  min-height: 80px;
+  max-height: calc(60vh);
+}
+
 .input-row { margin-top:8px; display:flex; gap:8px; align-items:center; }
 .input-row input { flex:1; padding:10px; border-radius:8px; border:1px solid rgba(11,17,34,0.06); }
-.input-row .btn { padding:10px 14px; }
 .quick { margin-top:8px; display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
-.quick .btn { white-space:nowrap; padding:8px 12px; border-radius:8px; font-weight:600; }
-.quick .btn.reset { margin-left:auto; }
+.reset-btn { margin-left:auto; }
 </style>

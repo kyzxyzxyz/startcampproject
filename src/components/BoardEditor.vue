@@ -27,7 +27,7 @@
       </div>
 
       <div class="actions">
-        <button type="submit" class="btn primary">작성</button>
+        <BaseButton type="submit" variant="primary">작성</BaseButton>
       </div>
     </form>
   </div>
@@ -38,8 +38,10 @@ import { ref, onMounted } from 'vue'
 import { addPost } from '../utils/storage'
 import { v4 as uuidv4 } from 'uuid'
 import { useRoute } from 'vue-router'
+import BaseButton from './BaseButton.vue'
 
 export default {
+  components: { BaseButton },
   props: {
     initialTitle: { type: String, default: '' },
     initialPoiId: { type: String, default: '' },
@@ -92,4 +94,5 @@ export default {
 <style scoped>
 .editor { padding:16px; }
 .field select { width:100%; padding:10px 12px; border-radius:8px; border:1px solid rgba(11,17,34,0.06); box-sizing:border-box; }
+.actions { margin-top:12px; }
 </style>

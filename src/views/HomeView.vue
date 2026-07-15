@@ -7,15 +7,16 @@
           <p class="lead">{{ $t('app.homeLead') }}</p>
 
           <div class="category-grid">
-            <button
+            <BaseButton
               v-for="cat in categories"
               :key="cat.key"
               class="cat-card"
+              variant="ghost"
               @click="openCategory(cat)"
             >
               <div class="cat-num">{{ getCount(cat.key) }}</div>
               <div class="cat-label">{{ $t(cat.labelKey) }}</div>
-            </button>
+            </BaseButton>
           </div>
         </div>
 
@@ -35,7 +36,7 @@
         <div class="card festival-card">
           <div class="card-header">
             <h3 class="card-title">주간 축제 캘린더</h3>
-            <button class="view-all-btn" @click="goToFestivals">캘린더 전체보기</button>
+            <BaseButton class="view-all-btn" variant="ghost" @click="goToFestivals">캘린더 전체보기</BaseButton>
           </div>
 
           <FestivalCalendar :compact="true" :show-date-controls="true" />
@@ -84,9 +85,10 @@ import CategoryListModal from '../components/CategoryListModal.vue'
 import { loadPosts } from '../utils/storage'
 import FestivalCalendar from '../components/FestivalCalendar.vue'
 import WeatherCard from '../components/WeatherCard.vue'
+import BaseButton from '../components/BaseButton.vue'
 
 export default {
-  components: { MapView, CategoryListModal, FestivalCalendar, WeatherCard },
+  components: { MapView, CategoryListModal, FestivalCalendar, WeatherCard, BaseButton },
   setup() {
     const router = useRouter()
 
@@ -216,125 +218,5 @@ export default {
   align-items: flex-start;
   max-width: 1100px;
   margin: 0 auto;
-}
-
-.hero-left {
-  flex: 1;
-}
-
-.hero-title {
-  margin: 0 0 8px;
-  font-size: 28px;
-  color: #0b1220;
-  font-weight: 700;
-}
-
-.lead {
-  margin: 0 0 18px;
-  color: #64748b;
-}
-
-.category-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 12px;
-  margin-top: 8px;
-}
-
-.cat-card {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  padding: 18px;
-  border-radius: 10px;
-  background: #fff;
-  box-shadow: 0 4px 16px rgba(15, 99, 254, 0.04);
-  border: 1px solid rgba(11, 17, 34, 0.04);
-  cursor: pointer;
-  text-align: center;
-}
-
-.cat-num {
-  font-weight: 800;
-  font-size: 20px;
-  color: #0f172a;
-}
-
-.cat-label {
-  font-size: 13px;
-  color: #64748b;
-}
-
-.content-row {
-  display: flex;
-  gap: 16px;
-  margin-top: 18px;
-  max-width: 1100px;
-  margin-left: auto;
-  margin-right: auto;
-  padding: 0 20px;
-  box-sizing: border-box;
-}
-
-.left-col {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.right-col {
-  width: 320px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.festival-card {
-  margin-top: 4px;
-}
-
-.card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 8px;
-}
-
-.view-all-btn {
-  border: none;
-  background: #2563eb;
-  color: white;
-  padding: 7px 10px;
-  border-radius: 999px;
-  cursor: pointer;
-  font-size: 13px;
-}
-
-.festival-card :deep(.festival-calendar) {
-  border: none;
-  box-shadow: none;
-  padding: 0;
-}
-
-@media (max-width: 1000px) {
-  .category-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  .hero-inner {
-    flex-direction: column;
-  }
-
-  .content-row {
-    flex-direction: column;
-    padding: 0 12px;
-  }
-
-  .right-col {
-    width: 100%;
-  }
 }
 </style>

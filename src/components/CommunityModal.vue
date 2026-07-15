@@ -1,275 +1,184 @@
 <template>
-  <div>
-    <div v-if="visible" class="cm-overlay" @click.self="close">
-      <div class="cm-modal">
-        <div class="cm-header">
+  <BaseModal v-if="visible" @close="close">
+    <div class="community-modal">
+      <header class="cm-header">
+        <div class="cm-title">
           <h3>{{ title }}</h3>
-          <button @click="close">✕</button>
+          <p v-if="subtitle" class="cm-sub">{{ subtitle }}</p>
         </div>
+        <BaseButton variant="ghost" size="sm" @click="close" aria-label="닫기">✕</BaseButton>
+      </header>
 
-        <div class="cm-body">
-          <!-- 선택된 게시글이 있으면 '상세 전용 모드'로 전환 -->
-          <div v-if="selectedPost" class="post-detail-only">
-            <div class="post-detail card" ref="detailEl">
-              <div v-if="!editing">
-                <h4>{{ selectedPost.title }}</h4>
-                <div class="meta">작성: {{ formatDate(selectedPost.createdAt) }} · 카테고리: {{ selectedPost.category }}</div>
-                <p class="content">{{ selectedPost.content }}</p>
-                <div class="post-actions">
-                  <button @click="startEdit">수정</button>
-                  <button @click="beginDeleteFlow">삭제</button>
-                  <button @click="closeDetail"> 이전으로 </button>
-                </div>
+      <div class="cm-body">
+        <section class="form-card">
+          <h4 class="section-title">게시글 작성</h4>
 
-                <div v-if="deleteFlowVisible" class="delete-inline">
-                  <input v-model="deletePassword" type="password" placeholder="삭제 비밀번호" ref="deletePwdRef" />
-                  <div class="error" v-if="deleteError">{{ deleteError }}</div>
-                  <div style="margin-top:8px">
-                    <button @click="doDelete">삭제 확인</button>
-                    <button @click="cancelDeleteFlow">취소</button>
-                  </div>
-                </div>
-                <div v-if="deleteSuccess" class="success">{{ deleteSuccess }}</div>
+          <form class="form" @submit.prevent="onCreate">
+            <div class="form-row">
+              <label class="form-label">선택 장소</label>
+              <div class="form-control">
+                <div v-if="initialTitle" class="poi-name">{{ initialTitle }}</div>
+                <div v-else class="poi-name muted">선택된 장소 없음</div>
               </div>
-
-              <div v-else class="edit-form">
-                <label>제목</label>
-                <input v-model="editTitle" />
-                <label>본문</label>
-                <textarea v-model="editContent"></textarea>
-                <label>비밀번호</label>
-                <input type="password" v-model="editPassword" placeholder="작성 시 입력한 비밀번호" ref="editPwdRef" />
-                <div class="error" v-if="editError">{{ editError }}</div>
-                <div style="margin-top:8px">
-                  <button @click="doUpdate">저장</button>
-                  <button @click="cancelEdit">취소</button>
-                </div>
-                <div v-if="editSuccess" class="success">{{ editSuccess }}</div>
-              </div>
-
-              <CommentSection v-if="selectedPost" :postId="selectedPost.id" />
             </div>
-          </div>
 
-          <!-- 선택된 게시글 없을 때: 작성폼 + 목록 (기본 모드) -->
-          <div v-else>
-            <BoardEditor :initialTitle="initialTitle" :initialPoiId="initialPoiId" :initialCategory="initialCategory" @created="onCreated" />
-            <hr/>
-            <BoardList :category="initialCategory || null" :poiId="initialPoiId" :navigateOnClick="false" @open-post="openPost" />
-          </div>
-        </div>
+            <div class="form-row">
+              <label class="form-label">카테고리</label>
+              <div class="form-control">
+                <select v-model="category">
+                  <option value="">전체(선택)</option>
+                  <option v-for="c in categories" :key="c" :value="c">{{ c }}</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <label class="form-label">제목</label>
+              <div class="form-control">
+                <input type="text" v-model="postTitle" required />
+              </div>
+            </div>
+
+            <div class="form-row">
+              <label class="form-label">본문</label>
+              <div class="form-control">
+                <textarea v-model="content" rows="8" required></textarea>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <label class="form-label">비밀번호</label>
+              <div class="form-control">
+                <input v-model="password" type="password" required />
+              </div>
+            </div>
+
+            <div class="form-actions">
+              <BaseButton variant="primary" type="submit">작성</BaseButton>
+            </div>
+          </form>
+        </section>
+
+        <section class="list-card">
+          <BoardList :category="initialCategory || null" :poiId="initialPoiId" :navigateOnClick="false" @open-post="openPost" />
+        </section>
       </div>
     </div>
-  </div>
+  </BaseModal>
 </template>
 
 <script>
 import { ref, onMounted, nextTick } from 'vue'
-import { useRouter } from 'vue-router'
+import BaseModal from './BaseModal.vue'
+import BaseButton from './BaseButton.vue'
 import BoardList from './BoardList.vue'
-import BoardEditor from './BoardEditor.vue'
-import CommentSection from './CommentSection.vue'
-import { loadPosts, updatePost, deletePost } from '../utils/storage'
+import { addPost } from '../utils/storage'
 
 export default {
-  components: { BoardList, BoardEditor, CommentSection },
-  setup() {
-    const router = useRouter()
-
+  name: 'CommunityModal',
+  components: { BaseModal, BaseButton, BoardList },
+  setup(_, { expose }) {
     const visible = ref(false)
     const initialPoiId = ref(null)
     const initialTitle = ref('')
     const initialCategory = ref(null)
-    const title = ref('커뮤니티')
+    const title = ref('게시글 작성')
+    const subtitle = ref('')
+    const category = ref('')
+    const categories = ['관광지','레포츠','문화시설','쇼핑','숙박','여행코스','음식점','축제공연행사']
 
-    const selectedPost = ref(null)
-    const editing = ref(false)
-    const editTitle = ref('')
-    const editContent = ref('')
-    const editPassword = ref('')
+    const postTitle = ref('')
+    const content = ref('')
+    const password = ref('')
 
-    const detailEl = ref(null)
-
-    // deletion inline flow
-    const deleteFlowVisible = ref(false)
-    const deletePassword = ref('')
-    const deleteError = ref('')
-    const deleteSuccess = ref('')
-
-    // edit inline messages
-    const editError = ref('')
-    const editSuccess = ref('')
-
-    function open(detail) {
+    function open(detail = {}) {
       initialPoiId.value = detail?.poiId || null
       initialTitle.value = detail?.poiTitle || ''
       initialCategory.value = detail?.poiCategory || detail?.category || null
-      title.value = initialTitle.value ? `「${initialTitle.value}」 의견` : (initialCategory.value ? `${initialCategory.value} 의견` : '커뮤니티')
+      title.value = initialTitle.value ? `「${initialTitle.value}」 의견` : '게시글 작성'
+      subtitle.value = initialCategory.value ? `${initialCategory.value}` : ''
       visible.value = true
-      selectedPost.value = null
-      editing.value = false
-      deleteFlowVisible.value = false
-      deletePassword.value = ''
-      deleteError.value = ''
-      deleteSuccess.value = ''
-      editError.value = ''
-      editSuccess.value = ''
-    }
-    function close(){ visible.value = false; selectedPost.value = null; editing.value = false; deleteFlowVisible.value = false }
 
-    function onCreated(){
-      // 새 글 작성 후: 모달 닫고 커뮤니티 목록으로 이동, 목록 갱신 이벤트 발행
+      postTitle.value = initialTitle.value ? `[${initialTitle.value}] 후기 및 의견` : ''
+      content.value = ''
+      password.value = ''
+      category.value = initialCategory.value || ''
+      nextTick(() => {})
+    }
+
+    function close() {
       visible.value = false
-      try { router.push('/community') } catch(e){}
+    }
+
+    function onCreate() {
+      const post = {
+        id: Date.now().toString(36) + Math.random().toString(36).slice(2,8),
+        category: category.value || initialCategory.value || '기타',
+        title: postTitle.value || '',
+        content: content.value || '',
+        password: password.value || '',
+        poiId: initialPoiId.value || null,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      }
+      addPost(post)
+      visible.value = false
       try { window.dispatchEvent(new Event('ggb-posts-changed')) } catch(e){}
+    }
+
+    function openPost(post) {
+      try { window.dispatchEvent(new CustomEvent('open-post', { detail: post })) } catch(e){}
     }
 
     onMounted(() => {
       window.addEventListener('open-community', (e) => {
         open(e.detail || {})
       })
-      window.addEventListener('open-post', (ev) => {
-        try {
-          const post = ev?.detail
-          if (post) openPost(post)
-        } catch(e){}
-      })
     })
 
-    function openPost(post) {
-      const all = loadPosts()
-      const p = all.find(x => x.id === post.id)
-      selectedPost.value = p || post
-      editing.value = false
-      editPassword.value = ''
-      deleteFlowVisible.value = false
-      deletePassword.value = ''
-      deleteError.value = ''
-      deleteSuccess.value = ''
-      editError.value = ''
-      editSuccess.value = ''
-      nextTick(() => {
-        const el = detailEl.value
-        if (el && el.scrollIntoView) {
-          el.scrollIntoView({ behavior: 'smooth', block: 'start' })
-        } else {
-          const modal = document.querySelector('.cm-modal')
-          if (modal) modal.scrollTop = 0
-        }
-      })
-    }
+    expose({ open, close })
 
-    function closeDetail() {
-      selectedPost.value = null
-      editing.value = false
-    }
-
-    function startEdit() {
-      if (!selectedPost.value) return
-      editTitle.value = selectedPost.value.title
-      editContent.value = selectedPost.value.content
-      editPassword.value = ''
-      editing.value = true
-      editError.value = ''
-      editSuccess.value = ''
-      nextTick(() => {
-        const el = document.querySelector('.edit-form input')
-        if (el) el.focus()
-      })
-    }
-
-    async function doUpdate() {
-      editError.value = ''
-      editSuccess.value = ''
-      try {
-        await updatePost(selectedPost.value.id, { title: editTitle.value, content: editContent.value }, editPassword.value)
-        const all = loadPosts()
-        selectedPost.value = all.find(x=>x.id===selectedPost.value.id) || null
-        editing.value = false
-        editSuccess.value = '수정되었습니다.'
-        try { window.dispatchEvent(new Event('ggb-posts-changed')) } catch(e){}
-      } catch (e) {
-        editError.value = e.message || '수정 실패'
-        await nextTick()
-        const el = document.querySelector('.edit-form input[type="password"]')
-        if (el) el.focus()
-      }
-    }
-
-    function beginDeleteFlow() {
-      deleteFlowVisible.value = true
-      deletePassword.value = ''
-      deleteError.value = ''
-      deleteSuccess.value = ''
-      nextTick(() => {
-        const el = document.querySelector('.delete-inline input[type="password"]')
-        if (el) el.focus()
-      })
-    }
-    function cancelDeleteFlow() {
-      deleteFlowVisible.value = false
-      deletePassword.value = ''
-      deleteError.value = ''
-    }
-
-    async function doDelete() {
-      deleteError.value = ''
-      deleteSuccess.value = ''
-      if (!deletePassword.value) {
-        deleteError.value = '비밀번호를 입력하세요.'
-        await nextTick()
-        const el = document.querySelector('.delete-inline input[type="password"]')
-        if (el) el.focus()
-        return
-      }
-      try {
-        deletePost(selectedPost.value.id, deletePassword.value)
-        deleteSuccess.value = '삭제되었습니다.'
-        try { window.dispatchEvent(new Event('ggb-posts-changed')) } catch(e){}
-        setTimeout(() => {
-          selectedPost.value = null
-          deleteFlowVisible.value = false
-        }, 500)
-      } catch (e) {
-        deleteError.value = e.message || '삭제 실패'
-        await nextTick()
-        const el = document.querySelector('.delete-inline input[type="password"]')
-        if (el) el.focus()
-      }
-    }
-
-    function cancelEdit() {
-      editing.value = false
-    }
-
-    function formatDate(s) {
-      return s ? new Date(s).toLocaleString() : ''
-    }
-
+    // <-- 중요: 템플릿에서 사용하므로 반드시 반환합니다
     return {
-      visible, initialPoiId, initialTitle, initialCategory, title,
-      selectedPost, openPost, close, onCreated, startEdit, doUpdate, beginDeleteFlow, doDelete, editing,
-      editTitle, editContent, editPassword, cancelEdit, closeDetail, formatDate, detailEl,
-      deleteFlowVisible, deletePassword, deleteError, deleteSuccess,
-      editError, editSuccess
+      visible,
+      initialPoiId,
+      initialTitle,
+      initialCategory,
+      title,
+      subtitle,
+      postTitle,
+      content,
+      password,
+      onCreate,
+      categories,
+      category,
+      open,
+      close,
+      openPost
     }
   }
 }
 </script>
 
 <style scoped>
-.cm-overlay{position:fixed;inset:0;background:rgba(2,6,23,0.5);display:flex;align-items:center;justify-content:center;z-index:99999}
-.cm-modal{width:min(900px,96%);background:white;border-radius:10px;overflow:auto;max-height:85vh;padding:12px}
-.cm-header{display:flex;justify-content:space-between;align-items:center;padding:4px 8px;border-bottom:1px solid #eee}
-.cm-body{padding:12px}
-.post-detail-only .post-detail { margin-bottom:12px; }
-.post-detail h4 { margin:0 0 6px; }
-.post-detail .meta { color:#64748b; font-size:12px; margin-bottom:8px; }
-.post-detail .content { white-space:pre-wrap; color:#0b1220; margin-bottom:8px; }
-.post-actions { display:flex; gap:8px; }
-.edit-form input, .edit-form textarea { width:100%; box-sizing:border-box; margin-bottom:8px; }
-.delete-inline { margin-top:8px; display:flex; gap:8px; align-items:center; }
-.delete-inline input { padding:8px; border-radius:6px; border:1px solid rgba(11,17,34,0.06); flex:1; }
-.error { color:#ef4444; margin-top:6px; }
-.success { color:#059669; margin-top:6px; }
+/* (스타일은 이전과 동일) */
+.community-modal { width:100%; box-sizing:border-box; padding:0; }
+.cm-header{
+  display:flex; align-items:center; justify-content:space-between;
+  padding:16px 20px; border-bottom:1px solid rgba(11,17,34,0.06);
+}
+.cm-title h3{ margin:0; font-size:18px; color:var(--text); }
+.cm-sub{ margin:6px 0 0 0; font-size:13px; color:var(--muted); }
+.cm-body{ padding:18px 20px 28px 20px; display:flex; flex-direction:column; gap:18px; }
+.form-card,.list-card{ background:var(--card); border-radius:10px; padding:18px; border:1px solid rgba(11,17,34,0.04); box-shadow:var(--shadow); }
+.form{ display:flex; flex-direction:column; gap:14px; }
+.section-title{ margin:0 0 8px 0; font-size:16px; }
+.form-row{ display:flex; gap:12px; align-items:flex-start; }
+.form-label{ width:120px; font-weight:600; color:var(--muted); margin-top:6px; }
+.form-control{ flex:1; }
+.form-control input,.form-control select,.form-control textarea{ width:100%; padding:12px 14px; border-radius:8px; border:1px solid rgba(11,17,34,0.06); box-sizing:border-box; background:white; font-size:14px; }
+.form-control textarea{ min-height:160px; resize:vertical; }
+.form-actions{ display:flex; justify-content:flex-end; margin-top:6px; }
+.muted{ color:var(--muted); }
+@media (max-width:720px){ .form-row{ flex-direction:column } .form-label{ width:auto; margin-bottom:6px } .form-control textarea{ min-height:140px } }
 </style>

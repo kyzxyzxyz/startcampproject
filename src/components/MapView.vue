@@ -1,19 +1,17 @@
 <template>
   <div>
     <div class="map-controls">
-      <button
-        :class="{active: activeType === null}"
-        @click="showAll"
-        class="all-btn">{{ t('board.all') }}</button>
+      <BaseButton :class="{active: activeType === null}" variant="neutral" size="sm" @click="showAll">{{ t('board.all') }}</BaseButton>
 
-      <button
+      <BaseButton
         v-for="type in types"
         :key="type"
         :class="{active: activeType === type}"
         :style="buttonStyle(type)"
+        variant="ghost"
         @click="selectType(type)">
         {{ t(typeLabelMap[type] ?? type) }}
-      </button>
+      </BaseButton>
     </div>
 
     <div class="map-container card">
@@ -29,8 +27,10 @@ import 'leaflet.markercluster'
 import 'leaflet.markercluster/dist/MarkerCluster.css'
 import 'leaflet.markercluster/dist/MarkerCluster.Default.css'
 import { useI18n } from 'vue-i18n'
+import BaseButton from './BaseButton.vue'
 
 export default {
+  components: { BaseButton },
   setup() {
     const { t } = useI18n()
     const mapEl = ref(null)
@@ -39,7 +39,6 @@ export default {
     const defaultPoiZoom = 15
     const zoomStepOnClick = 2
 
-    // expected shape: { mid: {...}, sub: {...} }
     const classifications = {}
 
     const layerGroups = {}
