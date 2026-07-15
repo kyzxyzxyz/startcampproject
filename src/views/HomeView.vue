@@ -13,7 +13,7 @@
               class="cat-card"
               @click="openCategory(cat)"
             >
-              <div class="cat-num">{{ counts[cat.key] ?? 0 }}</div>
+              <div class="cat-num">{{ getCount(cat.key) }}</div>
               <div class="cat-label">{{ $t(cat.labelKey) }}</div>
             </button>
           </div>
@@ -43,6 +43,9 @@
       </div>
 
       <aside class="right-col">
+        <div class="card">
+          <WeatherCard />
+        </div>
         <div class="card">
           <h4>{{ $t('app.recommendRoutes') }}</h4>
           <ul class="compact-list">
@@ -80,9 +83,10 @@ import MapView from '../components/MapView.vue'
 import CategoryListModal from '../components/CategoryListModal.vue'
 import { loadPosts } from '../utils/storage'
 import FestivalCalendar from '../components/FestivalCalendar.vue'
+import WeatherCard from '../components/WeatherCard.vue'
 
 export default {
-  components: { MapView, CategoryListModal, FestivalCalendar },
+  components: { MapView, CategoryListModal, FestivalCalendar, WeatherCard },
   setup() {
     const router = useRouter()
 
@@ -171,6 +175,11 @@ export default {
       router.push('/festivals')
     }
 
+    function getCount(key) {
+      const v = counts[key]
+      return (v === undefined || v === null) ? 0 : v
+    }
+
     onMounted(() => {
       loadAllCounts()
       loadRecentPosts()
@@ -183,6 +192,7 @@ export default {
       showModal,
       activeCategory,
       modalItems,
+      getCount,
       openCategory,
       closeModal,
       recentPosts,

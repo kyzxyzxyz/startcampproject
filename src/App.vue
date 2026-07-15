@@ -30,6 +30,23 @@
       <router-view />
     </main>
 
+    <footer class="site-footer">
+      <div class="footer-inner">
+        <div class="contact">
+          <div class="contact-item">컨택 이메일: <a href="mailto:contact@example.com">contact@example.com</a></div>
+          <div class="contact-item">연락처: <a href="tel:+821012345678">+82 10-1234-5678</a></div>
+        </div>
+
+        <div class="subscribe">
+          <form class="subscribe-form" @submit.prevent="subscribe">
+            <input id="sub-email" v-model="email" type="email" placeholder="이메일을 입력하세요" />
+            <button type="submit" class="btn primary">구독</button>
+          </form>
+          <p class="subscribe-note">뉴스레터와 업데이트를 이메일로 받아보세요.</p>
+        </div>
+      </div>
+    </footer>
+
     <ChatModal />
     <CommunityModal />
     <SearchModal ref="searchModal" />
@@ -47,12 +64,30 @@ export default {
   components: { ChatModal, CommunityModal, LanguageSwitcher, SearchModal },
   setup() {
     const searchModal = ref(null)
+    const email = ref('')
 
     function openSearchModal() {
       if (searchModal.value && searchModal.value.open) searchModal.value.open()
     }
 
-    return { searchModal, openSearchModal }
+    function subscribe() {
+      if (!email.value) {
+        alert('이메일을 입력하세요.')
+        return
+      }
+      try {
+        const subs = JSON.parse(localStorage.getItem('subscribers') || '[]')
+        subs.push({ email: email.value, date: new Date().toISOString() })
+        localStorage.setItem('subscribers', JSON.stringify(subs))
+        alert('구독해주셔서 감사합니다!')
+        email.value = ''
+      } catch (e) {
+        console.error(e)
+        alert('구독 처리 중 오류가 발생했습니다.')
+      }
+    }
+
+    return { searchModal, openSearchModal, email, subscribe }
   },
   methods: {
     goCommunity() {
@@ -161,5 +196,19 @@ export default {
     border-radius: 10px;
     min-width: 68px;
   }
+}
+
+.site-footer { background:#f8fafc; border-top:1px solid rgba(2,6,23,0.06); padding:28px 0; }
+.footer-inner { max-width:1100px; margin:0 auto; display:flex; align-items:center; justify-content:space-between; gap:20px; padding:0 16px; box-sizing:border-box; }
+.contact { display:flex; flex-direction:column; gap:6px; color:#334155; }
+.contact-item a { color:#0f99ff; text-decoration:underline; }
+.subscribe { display:flex; flex-direction:column; align-items:flex-end; gap:8px; }
+.subscribe-form { display:flex; gap:8px; align-items:center; }
+.subscribe-form input[type="email"] { padding:8px 10px; border:1px solid rgba(11,17,34,0.06); border-radius:10px; min-width:220px; }
+.subscribe-note { font-size:13px; color:#64748b; margin:0; }
+@media (max-width:700px) {
+  .footer-inner { flex-direction:column; align-items:flex-start; }
+  .subscribe { width:100%; align-items:flex-start; }
+  .subscribe-form input[type="email"] { width:100%; min-width:0; }
 }
 </style>
