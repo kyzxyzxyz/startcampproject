@@ -36,6 +36,9 @@
 
       <aside class="right-col">
         <div class="card">
+          <WeatherCard />
+        </div>
+        <div class="card">
           <h4>{{ $t('app.recommendRoutes') }}</h4>
           <ul class="compact-list">
             <li>금오산 산책 코스 · 1일</li>
@@ -70,9 +73,10 @@ import { ref, reactive, onMounted } from 'vue'
 import MapView from '../components/MapView.vue'
 import CategoryListModal from '../components/CategoryListModal.vue'
 import { loadPosts } from '../utils/storage'
+import WeatherCard from '../components/WeatherCard.vue'
 
 export default {
-  components: { MapView, CategoryListModal },
+  components: { MapView, CategoryListModal, WeatherCard },
   setup() {
     const categories = [
       { key: 'tourist', labelKey: 'categories.tourist', file: '/구미_경북권_관광지.json' },
