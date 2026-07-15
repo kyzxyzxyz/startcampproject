@@ -6,6 +6,7 @@ import BoardView from './views/BoardView.vue'
 import BoardDetail from './views/BoardDetail.vue'
 import ChatView from './views/ChatView.vue'
 import CommunityView from './views/CommunityView.vue'
+import FestivalView from './views/FestivalView.vue'
 import './styles.css'
 import i18n from './i18n' // vue-i18n 설정 파일
 
@@ -26,6 +27,7 @@ const routes = [
   { path: '/community', component: CommunityView },
   { path: '/board', component: BoardView },
   { path: '/board/:id', component: BoardDetail, props: true },
+  { path: '/festivals', component: FestivalView },
   { path: '/chat', component: ChatView }
 ]
 

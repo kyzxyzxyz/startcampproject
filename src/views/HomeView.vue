@@ -6,7 +6,6 @@
           <h1 class="hero-title">{{ $t('app.homeTitle') }}</h1>
           <p class="lead">{{ $t('app.homeLead') }}</p>
 
-          <!-- 카테고리 그리드 (4x2) -->
           <div class="category-grid">
             <button
               v-for="cat in categories"
@@ -21,7 +20,7 @@
         </div>
 
         <div class="hero-right">
-          <!-- 오른쪽 빈 공간/비주얼 영역 — 필요시 이미지나 통계 배치 가능 -->
+          <!-- 오른쪽 빈 공간/비주얼 영역 -->
         </div>
       </div>
     </section>
@@ -31,6 +30,15 @@
         <div class="card" id="map-section" ref="map">
           <h3 class="card-title">{{ $t('app.map') }}</h3>
           <MapView />
+        </div>
+
+        <div class="card festival-card">
+          <div class="card-header">
+            <h3 class="card-title">주간 축제 캘린더</h3>
+            <button class="view-all-btn" @click="goToFestivals">캘린더 전체보기</button>
+          </div>
+
+          <FestivalCalendar :compact="true" :show-date-controls="true" />
         </div>
       </div>
 
@@ -67,13 +75,17 @@
 
 <script>
 import { ref, reactive, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import MapView from '../components/MapView.vue'
 import CategoryListModal from '../components/CategoryListModal.vue'
 import { loadPosts } from '../utils/storage'
+import FestivalCalendar from '../components/FestivalCalendar.vue'
 
 export default {
-  components: { MapView, CategoryListModal },
+  components: { MapView, CategoryListModal, FestivalCalendar },
   setup() {
+    const router = useRouter()
+
     const categories = [
       { key: 'tourist', labelKey: 'categories.tourist', file: '/구미_경북권_관광지.json' },
       { key: 'food', labelKey: 'categories.food', file: '/구미_경북권_음식점.json' },
@@ -90,17 +102,16 @@ export default {
     const showModal = ref(false)
     const activeCategory = ref(null)
     const modalItems = ref([])
-
     const recentPosts = ref([])
 
     function loadRecentPosts() {
       const all = loadPosts() || []
-      all.sort((a,b) => {
+      all.sort((a, b) => {
         const ta = a.createdAt || a.createdTime || a.created || ''
         const tb = b.createdAt || b.createdTime || b.created || ''
         return (tb > ta) ? 1 : (tb < ta) ? -1 : 0
       })
-      recentPosts.value = all.slice(0,3)
+      recentPosts.value = all.slice(0, 3)
     }
 
     async function fetchCount(cat) {
@@ -136,7 +147,7 @@ export default {
         }
         const json = await res.json()
         const items = Array.isArray(json.items) ? json.items.slice() : []
-        items.sort((a,b) => {
+        items.sort((a, b) => {
           if (!a.title) return -1
           if (!b.title) return 1
           return a.title.localeCompare(b.title, 'ko')
@@ -156,6 +167,10 @@ export default {
       modalItems.value = []
     }
 
+    function goToFestivals() {
+      router.push('/festivals')
+    }
+
     onMounted(() => {
       loadAllCounts()
       loadRecentPosts()
@@ -163,8 +178,15 @@ export default {
     })
 
     return {
-      categories, counts, showModal, activeCategory, modalItems,
-      openCategory, closeModal, recentPosts
+      categories,
+      counts,
+      showModal,
+      activeCategory,
+      modalItems,
+      openCategory,
+      closeModal,
+      recentPosts,
+      goToFestivals
     }
   }
 }
@@ -173,48 +195,136 @@ export default {
 <style scoped>
 .hero {
   padding: 36px 20px;
-  background: linear-gradient(90deg, rgba(236,249,255,1) 0%, rgba(245,251,255,1) 100%);
+  background: linear-gradient(90deg, rgba(236, 249, 255, 1) 0%, rgba(245, 251, 255, 1) 100%);
   border-radius: 8px;
   margin-bottom: 18px;
 }
-.hero-inner { display:flex; gap:24px; align-items:flex-start; max-width:1100px; margin:0 auto; }
-.hero-left { flex:1; }
-.hero-title { margin:0 0 8px; font-size:28px; color:#0b1220; font-weight:700; }
-.lead { margin:0 0 18px; color:#64748b; }
+
+.hero-inner {
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.hero-left {
+  flex: 1;
+}
+
+.hero-title {
+  margin: 0 0 8px;
+  font-size: 28px;
+  color: #0b1220;
+  font-weight: 700;
+}
+
+.lead {
+  margin: 0 0 18px;
+  color: #64748b;
+}
 
 .category-grid {
-  display:grid;
+  display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap:12px;
-  margin-top:8px;
+  gap: 12px;
+  margin-top: 8px;
 }
+
 .cat-card {
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
-  gap:6px;
-  padding:18px;
-  border-radius:10px;
-  background:#fff;
-  box-shadow: 0 4px 16px rgba(15,99,254,0.04);
-  border:1px solid rgba(11,17,34,0.04);
-  cursor:pointer;
-  text-align:center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 18px;
+  border-radius: 10px;
+  background: #fff;
+  box-shadow: 0 4px 16px rgba(15, 99, 254, 0.04);
+  border: 1px solid rgba(11, 17, 34, 0.04);
+  cursor: pointer;
+  text-align: center;
 }
-.cat-num { font-weight:800; font-size:20px; color:#0f172a; }
-.cat-label { font-size:13px; color:#64748b; }
 
-/* 콘텐츠 레이아웃 */
-.content-row { display:flex; gap:16px; margin-top:18px; max-width:1100px; margin-left:auto; margin-right:auto; padding:0 20px; box-sizing:border-box; }
-.left-col { flex:1; display:flex; flex-direction:column; gap:12px; }
-.right-col { width:320px; display:flex; flex-direction:column; gap:12px; }
+.cat-num {
+  font-weight: 800;
+  font-size: 20px;
+  color: #0f172a;
+}
 
-/* responsive: 모바일에서 2열 */
-@media (max-width:1000px) {
-  .category-grid { grid-template-columns: repeat(2, 1fr); }
-  .hero-inner { flex-direction:column; }
-  .content-row { flex-direction:column; padding:0 12px; }
-  .right-col { width:100%; }
+.cat-label {
+  font-size: 13px;
+  color: #64748b;
+}
+
+.content-row {
+  display: flex;
+  gap: 16px;
+  margin-top: 18px;
+  max-width: 1100px;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 0 20px;
+  box-sizing: border-box;
+}
+
+.left-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.right-col {
+  width: 320px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.festival-card {
+  margin-top: 4px;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.view-all-btn {
+  border: none;
+  background: #2563eb;
+  color: white;
+  padding: 7px 10px;
+  border-radius: 999px;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.festival-card :deep(.festival-calendar) {
+  border: none;
+  box-shadow: none;
+  padding: 0;
+}
+
+@media (max-width: 1000px) {
+  .category-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .hero-inner {
+    flex-direction: column;
+  }
+
+  .content-row {
+    flex-direction: column;
+    padding: 0 12px;
+  }
+
+  .right-col {
+    width: 100%;
+  }
 }
 </style>
