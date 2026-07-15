@@ -9,6 +9,9 @@
     "extract-manifest": "node scripts/extract-collection-dates.js"
   },
   "dependencies": {
+    "@fullcalendar/daygrid": "^6.1.21",
+    "@fullcalendar/interaction": "^6.1.21",
+    "@fullcalendar/vue3": "^6.1.21",
     "leaflet": "^1.9.4",
     "leaflet.markercluster": "^1.5.3",
     "node-fetch": "^2.7.0",

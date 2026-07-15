@@ -115,7 +115,7 @@ export default {
       this.$router.push('/community')
     },
     goMap() {
-      this.$router.push('/').catch(()=>{})
+      this.$router.push('/').catch(() => {})
       setTimeout(() => {
         const el = document.querySelector('#map-section')
         if (el && el.scrollIntoView) el.scrollIntoView({ behavior: 'smooth' })
@@ -126,21 +126,97 @@ export default {
 </script>
 
 <style scoped>
-/* 기존 스타일 유지 (생략 가능) */
-.site-header { background:#fff; border-bottom:1px solid rgba(2,6,23,0.06); position:sticky; top:0; z-index:60; }
-.header-inner { max-width:1100px; margin:0 auto; display:flex; align-items:center; gap:16px; padding:12px 16px; box-sizing:border-box; }
-.brand { display:flex; align-items:center; min-width:160px; }
-.logo { display:flex; align-items:center; gap:10px; text-decoration:none; }
-.logo-mark { flex:0 0 auto; }
-.brand-text { font-family: 'Poppins', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial; font-weight:700; color:#2563eb; font-size:20px; }
-.header-actions { margin-left:auto; display:flex; gap:10px; align-items:center; justify-content:flex-end; }
-.header-actions .btn.primary { padding: 8px 12px; border-radius: 12px; font-weight:700; font-size:14px; min-height:36px; min-width:76px; box-shadow: 0 6px 18px rgba(15,99,254,0.12); }
-.header-actions > *:not(:last-child) { vertical-align:middle; }
-.search-btn { display:inline-flex; align-items:center; justify-content:center; width:40px; height:40px; border-radius:50%; border:1px solid rgba(11,17,34,0.06); background:#fff; cursor:pointer; }
-@media (max-width:900px) {
-  .brand-text { font-size:18px; }
-  .header-inner { padding:10px 12px; }
-  .header-actions .btn.primary { padding:6px 10px; font-size:13px; border-radius:10px; min-width:68px; }
+.site-header {
+  background: #fff;
+  border-bottom: 1px solid rgba(2, 6, 23, 0.06);
+  position: sticky;
+  top: 0;
+  z-index: 60;
+}
+
+.header-inner {
+  max-width: 1100px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 16px;
+  box-sizing: border-box;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  min-width: 160px;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+}
+
+.logo-mark {
+  flex: 0 0 auto;
+}
+
+.brand-text {
+  font-family: 'Poppins', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+  font-weight: 700;
+  color: #2563eb;
+  font-size: 20px;
+}
+
+.header-actions {
+  margin-left: auto;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.header-actions .btn.primary {
+  padding: 8px 12px;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 14px;
+  min-height: 36px;
+  min-width: 76px;
+  box-shadow: 0 6px 18px rgba(15, 99, 254, 0.12);
+}
+
+.header-actions > *:not(:last-child) {
+  vertical-align: middle;
+}
+
+.search-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid rgba(11, 17, 34, 0.06);
+  background: #fff;
+  cursor: pointer;
+}
+
+@media (max-width: 900px) {
+  .brand-text {
+    font-size: 18px;
+  }
+
+  .header-inner {
+    padding: 10px 12px;
+  }
+
+  .header-actions .btn.primary {
+    padding: 6px 10px;
+    font-size: 13px;
+    border-radius: 10px;
+    min-width: 68px;
+  }
 }
 
 .site-footer { background:#f8fafc; border-top:1px solid rgba(2,6,23,0.06); padding:28px 0; }
