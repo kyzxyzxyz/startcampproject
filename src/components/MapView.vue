@@ -4,7 +4,7 @@
       <button
         :class="{active: activeType === null}"
         @click="showAll"
-        class="all-btn">전체</button>
+        class="all-btn">{{ t('board.all') }}</button>
 
       <button
         v-for="type in types"
@@ -36,8 +36,14 @@ export default {
     const mapEl = ref(null)
     let map = null
 
+    const defaultPoiZoom = 15
+    const zoomStepOnClick = 2
+
+    // expected shape: { mid: {...}, sub: {...} }
+    const classifications = {}
+
     const layerGroups = {}
-    const markerIndex = {} // contentid -> marker
+    const markerIndex = {}
     const types = ref([])
     const activeType = ref(null)
 
@@ -73,23 +79,11 @@ export default {
       const color = getColorForType(typeName)
       const isActive = activeType.value === typeName
       if (activeType.value === null) {
-        return {
-          background: color,
-          color: '#fff',
-          borderColor: color
-        }
+        return { background: color, color: '#fff', borderColor: color }
       } else if (isActive) {
-        return {
-          background: color,
-          color: '#fff',
-          borderColor: color
-        }
+        return { background: color, color: '#fff', borderColor: color }
       } else {
-        return {
-          background: '#f3f4f6',
-          color: '#64748b',
-          borderColor: 'rgba(11,17,34,0.06)'
-        }
+        return { background: '#f3f4f6', color: '#64748b', borderColor: 'rgba(11,17,34,0.06)' }
       }
     }
 
@@ -117,6 +111,15 @@ export default {
         }
       }))
       return results.filter(Boolean)
+    }
+
+    async function loadClassifications() {
+      try {
+        const r = await fetch('/data/classifications.json')
+        if (!r.ok) return
+        const j = await r.json()
+        Object.assign(classifications, j)
+      } catch (e) { /* ignore */ }
     }
 
     function escapeHtml(str){
@@ -187,6 +190,10 @@ export default {
         const classification = escapeHtml(getClassification(it))
         const localizedTitle = escapeHtml(title)
 
+        const subCode = (it.lclsSystm3 || it.lclsSystm3 || '').toString().trim()
+        const subLabel = (subCode && classifications.sub) ? (classifications.sub[subCode] || '') : ''
+        const subHtml = subCode ? `<div class="poi-subcat" style="font-size:13px;color:#475569;margin-top:4px;">${escapeHtml(subLabel || subCode)}</div>` : ''
+
         const imgHtml = img ? `<div class="poi-image" style="margin-top:8px;text-align:center;"><img src="${escapeHtml(img)}" style="max-width:100%;max-height:140px;border-radius:6px;object-fit:cover;" alt="${escapeHtml(title)}"/></div>` : ''
 
         const bodyHtml = bodyText ? `
@@ -202,7 +209,7 @@ export default {
        style="background:transparent;border:none;color:#2563eb;font-weight:600;cursor:pointer;padding:0;text-align:left;font-size:15px;text-decoration:none;display:inline-block;">
       ${escapeHtml(title)}
     </a>
-    ${classification ? `<div class="poi-class" style="font-size:13px;color:#475569;">${classification}</div>` : ''}
+    ${subHtml}
     ${addr ? `<div class="poi-addr" style="font-size:13px;color:#64748b;line-height:1.3;">${escapeHtml(addr)}</div>` : ''}
     ${tel ? `<div class="poi-tel" style="font-size:13px;color:#0b1220;margin-top:4px;">☎ ${escapeHtml(tel)}</div>` : ''}
     ${imgHtml}
@@ -230,16 +237,23 @@ export default {
           } catch (err) { /* ignore */ }
         })
 
-        // 클릭 시 마커가 맵 컨테이너 중앙에 오도록 처리
         marker.on('click', () => {
           try {
             if (!map) return
             const latlng = marker.getLatLng()
-            map.setView([latlng.lat+0.005, latlng.lng], Math.max(map.getZoom(), 15), { animate: true })
+            const currentZoom = map.getZoom()
+            const targetZoom = currentZoom > defaultPoiZoom
+              ? Math.max(currentZoom - zoomStepOnClick, defaultPoiZoom)
+              : Math.max(currentZoom, defaultPoiZoom)
+
+            map.panTo([latlng.lat + 0.005, latlng.lng], { animate: true })
+            const onceCb = () => {
+              try { map.setZoom(targetZoom, { animate: true }) } catch(e){}
+            }
+            map.once('moveend', onceCb)
           } catch (e) {}
         })
 
-        // 인덱스에 저장 (contentid 기반)
         if (poiId) {
           try { markerIndex[String(poiId)] = marker } catch (e) {}
         }
@@ -293,21 +307,22 @@ export default {
     function handleGotoPoi(ev) {
       const d = ev?.detail || {}
       if (!map) return
-      // 좌표가 있으면 이동 후 팝업 열기 시도
       if (d.lat && d.lon) {
         const lat = Number(d.lat), lon = Number(d.lon)
         if (!Number.isFinite(lat) || !Number.isFinite(lon)) return
-        map.setView([lat, lon], 15, { animate: true })
-        // raw에 contentid 있으면 해당 마커 팝업 열기
-        const cid = d.raw && (d.raw.contentid || d.raw.contentId) ? String(d.raw.contentid || d.raw.contentId) : null
-        if (cid && markerIndex[cid]) {
-          const m = markerIndex[cid]
-          ensureGroupVisibleForMarker(m)
-          try { m.openPopup() } catch (e) {}
-        }
+
+        map.panTo([lat, lon], { animate: true })
+        map.once('moveend', () => {
+          try { map.setZoom(defaultPoiZoom, { animate: true }) } catch(e){}
+          const cid = d.raw && (d.raw.contentid || d.raw.contentId) ? String(d.raw.contentid || d.raw.contentId) : null
+          if (cid && markerIndex[cid]) {
+            const m = markerIndex[cid]
+            ensureGroupVisibleForMarker(m)
+            try { m.openPopup() } catch (e) {}
+          }
+        })
         return
       }
-      // contentid만 있는 경우
       if (d.raw && (d.raw.contentid || d.raw.contentId)) {
         const cid = String(d.raw.contentid || d.raw.contentId)
         const m = markerIndex[cid]
@@ -315,13 +330,15 @@ export default {
           ensureGroupVisibleForMarker(m)
           try {
             const latlng = m.getLatLng()
-            map.setView(latlng, 15, { animate: true })
-            m.openPopup()
+            map.panTo(latlng, { animate: true })
+            map.once('moveend', () => {
+              try { map.setZoom(defaultPoiZoom, { animate: true }) } catch(e){}
+              try { m.openPopup() } catch (e) {}
+            })
           } catch (e) {}
         }
         return
       }
-      // postId가 있는 경우는 게시글 열기 이벤트로 위임
       if (d.postId) {
         try { window.dispatchEvent(new CustomEvent('open-post', { detail: { id: d.postId } })) } catch(e){}
         return
@@ -334,27 +351,23 @@ export default {
         attribution: '&copy; OpenStreetMap contributors'
       }).addTo(map)
 
+      await loadClassifications()
       const files = await loadFiles()
 
-      // 먼저 고유 타입 목록 구성 및 색 매핑을 예약
       const discovered = []
       files.forEach(f => {
         const typeName = f.contentType || '기타'
         if (!discovered.includes(typeName)) discovered.push(typeName)
       })
       types.value = discovered
-      // 사전 색 할당(버튼/핀 동일 색 보장)
       discovered.forEach(tn => getColorForType(tn))
 
-      // 마커 추가
       files.forEach(f => {
         const typeName = f.contentType || '기타'
         addMarkersForType(typeName, f.items)
       })
 
       applyVisibleLayers()
-
-      // 검색 모달 등에서 발행하는 goto-poi 이벤트 처리
       window.addEventListener('goto-poi', handleGotoPoi)
     })
 

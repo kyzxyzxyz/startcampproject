@@ -1,14 +1,14 @@
 <template>
   <div class="comment-section">
-    <h4 class="cs-title">댓글 ({{ comments.length }})</h4>
+    <h4 class="cs-title">{{ t('comment.title', { count: comments.length }) }}</h4>
 
     <div class="new-comment card">
-      <input v-model="author" placeholder="작성자" />
-      <input v-model="newPassword" ref="newPasswordRef" type="password" placeholder="비밀번호" />
-      <textarea v-model="content" placeholder="댓글을 입력하세요." rows="3"></textarea>
+      <input v-model="author" :placeholder="t('comment.authorPlaceholder')" />
+      <input v-model="newPassword" ref="newPasswordRef" type="password" :placeholder="t('app.passwordPlaceholder')" />
+      <textarea v-model="content" :placeholder="t('comment.contentPlaceholder')" rows="3"></textarea>
       <div class="error" v-if="newError">{{ newError }}</div>
       <div class="actions">
-        <button class="btn" @click="submit">작성</button>
+        <button class="btn" @click="submit">{{ t('comment.submit') }}</button>
       </div>
     </div>
 
@@ -22,9 +22,9 @@
             </div>
 
             <div class="item-actions">
-              <button class="link" @click="toggleReply(c.id)">답글</button>
-              <button class="link" @click="startEdit(c)">{{ editingId === c.id ? '편집' : '수정' }}</button>
-              <button class="link" @click="startDelete(c)">{{ deletingId === c.id ? '확인' : '삭제' }}</button>
+              <button class="link" @click="toggleReply(c.id)">{{ t('comment.reply') }}</button>
+              <button class="link" @click="startEdit(c)">{{ editingId === c.id ? t('comment.editing') : t('comment.edit') }}</button>
+              <button class="link" @click="startDelete(c)">{{ deletingId === c.id ? t('comment.confirm') : t('comment.delete') }}</button>
             </div>
           </div>
 
@@ -35,13 +35,13 @@
             <input
               v-model="editPasswords[c.id]"
               type="password"
-              placeholder="비밀번호"
+              :placeholder="t('app.passwordPlaceholder')"
               :ref="el => setEditRef(c.id, el)"
             />
             <div class="error" v-if="editErrors[c.id]">{{ editErrors[c.id] }}</div>
             <div class="actions">
-              <button class="btn" @click="confirmEdit(c.id)">저장</button>
-              <button class="btn ghost" @click="cancelEdit">취소</button>
+              <button class="btn" @click="confirmEdit(c.id)">{{ t('comment.save') }}</button>
+              <button class="btn ghost" @click="cancelEdit">{{ t('app.close') }}</button>
             </div>
           </div>
 
@@ -49,31 +49,31 @@
             <input
               v-model="deletePasswords[c.id]"
               type="password"
-              placeholder="비밀번호"
+              :placeholder="t('app.passwordPlaceholder')"
               :ref="el => setDeleteRef(c.id, el)"
             />
             <div class="error" v-if="deleteErrors[c.id]">{{ deleteErrors[c.id] }}</div>
             <div class="actions">
-              <button class="btn danger" @click="confirmDelete(c.id)">삭제 확인</button>
-              <button class="btn ghost" @click="cancelDelete">취소</button>
+              <button class="btn danger" @click="confirmDelete(c.id)">{{ t('comment.deleteConfirm') }}</button>
+              <button class="btn ghost" @click="cancelDelete">{{ t('app.close') }}</button>
             </div>
           </div>
         </div>
 
         <!-- reply form -->
         <div v-if="replyingTo === c.id" class="reply-form">
-          <input v-model="replyAuthor" placeholder="작성자" />
+          <input v-model="replyAuthor" :placeholder="t('comment.authorPlaceholder')" />
           <input
             v-model="replyPasswords[c.id]"
             type="password"
-            placeholder="비밀번호"
+            :placeholder="t('app.passwordPlaceholder')"
             :ref="el => setReplyRef(c.id, el)"
           />
-          <textarea v-model="replyContent" placeholder="답글을 입력하세요." rows="2"></textarea>
+          <textarea v-model="replyContent" :placeholder="t('comment.replyPlaceholder')" rows="2"></textarea>
           <div class="error" v-if="replyErrors[c.id]">{{ replyErrors[c.id] }}</div>
           <div class="actions">
-            <button class="btn" @click="submitReply(c.id)">답글 작성</button>
-            <button class="btn ghost" @click="toggleReply(null)">취소</button>
+            <button class="btn" @click="submitReply(c.id)">{{ t('comment.replySubmit') }}</button>
+            <button class="btn ghost" @click="toggleReply(null)">{{ t('app.close') }}</button>
           </div>
         </div>
 
@@ -86,8 +86,8 @@
                 <span class="time"> · {{ formatDate(r.createdAt) }}</span>
               </div>
               <div class="item-actions">
-                <button class="link" @click="startEdit(r)">{{ editingId === r.id ? '편집' : '수정' }}</button>
-                <button class="link" @click="startDelete(r)">{{ deletingId === r.id ? '확인' : '삭제' }}</button>
+                <button class="link" @click="startEdit(r)">{{ editingId === r.id ? t('comment.editing') : t('comment.edit') }}</button>
+                <button class="link" @click="startDelete(r)">{{ deletingId === r.id ? t('comment.confirm') : t('comment.delete') }}</button>
               </div>
             </div>
 
@@ -98,13 +98,13 @@
               <input
                 v-model="editPasswords[r.id]"
                 type="password"
-                placeholder="비밀번호"
+                :placeholder="t('app.passwordPlaceholder')"
                 :ref="el => setEditRef(r.id, el)"
               />
               <div class="error" v-if="editErrors[r.id]">{{ editErrors[r.id] }}</div>
               <div class="actions">
-                <button class="btn" @click="confirmEdit(r.id)">저장</button>
-                <button class="btn ghost" @click="cancelEdit">취소</button>
+                <button class="btn" @click="confirmEdit(r.id)">{{ t('comment.save') }}</button>
+                <button class="btn ghost" @click="cancelEdit">{{ t('app.close') }}</button>
               </div>
             </div>
 
@@ -112,13 +112,13 @@
               <input
                 v-model="deletePasswords[r.id]"
                 type="password"
-                placeholder="비밀번호"
+                :placeholder="t('app.passwordPlaceholder')"
                 :ref="el => setDeleteRef(r.id, el)"
               />
               <div class="error" v-if="deleteErrors[r.id]">{{ deleteErrors[r.id] }}</div>
               <div class="actions">
-                <button class="btn danger" @click="confirmDelete(r.id)">삭제 확인</button>
-                <button class="btn ghost" @click="cancelDelete">취소</button>
+                <button class="btn danger" @click="confirmDelete(r.id)">{{ t('comment.deleteConfirm') }}</button>
+                <button class="btn ghost" @click="cancelDelete">{{ t('app.close') }}</button>
               </div>
             </div>
           </li>
@@ -131,11 +131,14 @@
 <script>
 import { ref, reactive, computed, onMounted, watch, nextTick } from 'vue'
 import { getCommentsForPost, addComment, updateComment, deleteComment } from '../utils/storage'
+import { useI18n } from 'vue-i18n'
 
 export default {
   name: 'CommentSection',
   props: { postId: { type: String, required: true } },
   setup(props) {
+    const { t, locale } = useI18n()
+
     const comments = ref([])
     const author = ref('')
     const newPassword = ref('')
@@ -150,7 +153,6 @@ export default {
 
     const deletingId = ref(null)
 
-    // use reactive maps to ensure v-model binding is stable
     const editPasswords = reactive({})
     const deletePasswords = reactive({})
     const replyPasswords = reactive({})
@@ -160,7 +162,6 @@ export default {
     const replyErrors = reactive({})
     const newError = ref('')
 
-    // refs map for focusing
     const editRefs = {}
     const deleteRefs = {}
     const replyRefs = {}
@@ -191,23 +192,27 @@ export default {
       return m
     })
 
-    function formatDate(s){ try { return new Date(s).toLocaleString() } catch(e){ return s } }
+    function formatDate(s){
+      try {
+        const d = new Date(s)
+        const loc = (locale && locale.value) ? locale.value : undefined
+        return d.toLocaleString(loc)
+      } catch(e) { return s }
+    }
 
-    // CREATE
     async function submit() {
       newError.value = ''
-      if (!content.value.trim()) { newError.value = '댓글 내용을 입력하세요.'; return }
-      if (!newPassword.value) { newError.value = '비밀번호를 입력하세요.'; await nextTick(); if (newPasswordRef.value) newPasswordRef.value.focus(); return }
+      if (!content.value.trim()) { newError.value = t('comment.errContent') ; return }
+      if (!newPassword.value) { newError.value = t('app.confirmDeletePrompt'); await nextTick(); if (newPasswordRef.value) newPasswordRef.value.focus(); return }
       try {
-        addComment({ postId: props.postId, parentId: null, author: author.value || '작성자', content: content.value.trim(), password: newPassword.value })
+        addComment({ postId: props.postId, parentId: null, author: author.value || t('comment.authorFallback'), content: content.value.trim(), password: newPassword.value })
         author.value = ''; newPassword.value = ''; content.value = ''; load()
       } catch (e) {
-        newError.value = e.message || '작성 실패'
+        newError.value = e.message || t('comment.errSubmit')
         setTimeout(()=>{ if (newPasswordRef.value) newPasswordRef.value.focus() },0)
       }
     }
 
-    // REPLY
     function toggleReply(id) {
       if (replyingTo.value === id) replyingTo.value = null
       else {
@@ -221,18 +226,17 @@ export default {
 
     async function submitReply(parentId) {
       replyErrors[parentId] = ''
-      if (!replyContent.value.trim()) { replyErrors[parentId] = '답글 내용을 입력하세요.'; return }
-      if (!replyPasswords[parentId]) { replyErrors[parentId] = '비밀번호를 입력하세요.'; await nextTick(); if (replyRefs[parentId]) replyRefs[parentId].focus(); return }
+      if (!replyContent.value.trim()) { replyErrors[parentId] = t('comment.errContent'); return }
+      if (!replyPasswords[parentId]) { replyErrors[parentId] = t('app.confirmDeletePrompt'); await nextTick(); if (replyRefs[parentId]) replyRefs[parentId].focus(); return }
       try {
-        addComment({ postId: props.postId, parentId, author: replyAuthor.value || '작성자', content: replyContent.value.trim(), password: replyPasswords[parentId] })
+        addComment({ postId: props.postId, parentId, author: replyAuthor.value || t('comment.authorFallback'), content: replyContent.value.trim(), password: replyPasswords[parentId] })
         replyAuthor.value = ''; replyPasswords[parentId] = ''; replyContent.value = ''; replyingTo.value = null; load()
       } catch(e) {
-        replyErrors[parentId] = e.message || '작성 실패'
+        replyErrors[parentId] = e.message || t('comment.errSubmit')
         setTimeout(()=>{ if (replyRefs[parentId]) replyRefs[parentId].focus() },0)
       }
     }
 
-    // EDIT
     function startEdit(c) {
       editErrors[c.id] = ''
       editingId.value = c.id
@@ -244,8 +248,8 @@ export default {
     async function confirmEdit(id) {
       editErrors[id] = ''
       const pwd = (editPasswords[id] || '').toString().trim()
-      if (!editContent.value.trim()) { editErrors[id] = '내용을 입력하세요.'; return }
-      if (!pwd) { editErrors[id] = '비밀번호를 입력하세요.'; await nextTick(); if (editRefs[id]) editRefs[id].focus(); return }
+      if (!editContent.value.trim()) { editErrors[id] = t('comment.errContent'); return }
+      if (!pwd) { editErrors[id] = t('app.confirmDeletePrompt'); await nextTick(); if (editRefs[id]) editRefs[id].focus(); return }
       try {
         updateComment(id, editContent.value.trim(), pwd)
         editingId.value = null
@@ -253,15 +257,13 @@ export default {
         editPasswords[id] = ''
         load()
       } catch (e) {
-        editErrors[id] = e.message || '수정 실패'
-        // do not clear the input; keep value so user can correct; focus input so they can type
+        editErrors[id] = e.message || t('comment.errEdit')
         setTimeout(()=>{ if (editRefs[id]) editRefs[id].focus() },0)
       }
     }
 
     function cancelEdit() { if (editingId.value) { editErrors[editingId.value] = ''; editPasswords[editingId.value] = '' } editingId.value = null; editContent.value = '' }
 
-    // DELETE
     function startDelete(c) {
       deleteErrors[c.id] = ''
       deletingId.value = c.id
@@ -272,14 +274,14 @@ export default {
     async function confirmDelete(id) {
       deleteErrors[id] = ''
       const pwd = (deletePasswords[id] || '').toString().trim()
-      if (!pwd) { deleteErrors[id] = '비밀번호를 입력하세요.'; await nextTick(); if (deleteRefs[id]) deleteRefs[id].focus(); return }
+      if (!pwd) { deleteErrors[id] = t('app.confirmDeletePrompt'); await nextTick(); if (deleteRefs[id]) deleteRefs[id].focus(); return }
       try {
         deleteComment(id, pwd)
         deletingId.value = null
         deletePasswords[id] = ''
         load()
       } catch (e) {
-        deleteErrors[id] = e.message || '삭제 실패'
+        deleteErrors[id] = e.message || t('comment.errDelete')
         setTimeout(()=>{ if (deleteRefs[id]) deleteRefs[id].focus() },0)
       }
     }
@@ -287,21 +289,20 @@ export default {
     function cancelDelete() { if (deletingId.value) { deleteErrors[deletingId.value] = ''; deletePasswords[deletingId.value] = '' } deletingId.value = null }
 
     return {
-      comments, rootComments, childMap, author, newPassword, content,
+      t, comments, rootComments, childMap, author, newPassword, content,
       replyAuthor, replyPasswords, replyContent, replyingTo, toggleReply,
       submitReply, submit,
-      startEdit, confirmEdit, cancelEdit, editingId, editContent, editPasswords, setEditRef: (id,el)=>{ setRef(editRefs,id,el) },
-      startDelete, confirmDelete, cancelDelete, deletingId, deletePasswords, setDeleteRef: (id,el)=>{ setRef(deleteRefs,id,el) },
-      setReplyRef: (id,el)=>{ setRef(replyRefs,id,el) }, replyErrors, editErrors, deleteErrors, newError, formatDate, newPasswordRef
+      startEdit, confirmEdit, cancelEdit, editingId, editContent, editPasswords, setEditRef,
+      startDelete, confirmDelete, cancelDelete, deletingId, deletePasswords, setDeleteRef,
+      setReplyRef, replyErrors, editErrors, deleteErrors, newError, formatDate, newPasswordRef
     }
 
-    // helper to set refs
-    function setRef(map, id, el) { if (el) map[id] = el; else delete map[id] }
   }
 }
 </script>
 
 <style scoped>
+/* same styles as before */
 .card { background:#fff; padding:12px; border-radius:8px; border:1px solid rgba(11,17,34,0.04); margin-bottom:12px; }
 .comment-section { margin-top:18px; }
 .cs-title { margin:0 0 8px; font-size:16px; }

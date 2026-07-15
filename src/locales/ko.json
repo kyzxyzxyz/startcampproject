@@ -23,7 +23,13 @@
     "delete": "삭제",
     "backToList": "목록으로",
     "confirmDeletePrompt": "삭제 비밀번호를 입력하세요",
-    "passwordPlaceholder": "비밀번호 입력"
+    "passwordPlaceholder": "비밀번호 입력",
+    "contactEmail": "컨택 이메일",
+    "contactPhone": "연락처",
+    "subscribePlaceholder": "이메일을 입력하세요",
+    "subscribeButton": "구독",
+    "subscribeNote": "뉴스레터와 업데이트를 이메일로 받아보세요.",
+    "chatTitle": "챗봇"
   },
   "categories": {
     "tourist": "관광지",
@@ -54,5 +60,39 @@
     "title": "게시글 상세",
     "editTitle": "수정 (비밀번호 확인)",
     "deleteTitle": "삭제 (비밀번호 입력)"
+  },
+  "chat": {
+    "greeting": "안녕하세요 무엇을 도와드릴까요?",
+    "generating": "응답을 생성 중입니다...",
+    "placeholder": "질문을 입력하세요. (예: 금오산 근처 추천 관광지)",
+    "send": "전송",
+    "preset1": "관광지 추천",
+    "preset1_text": "근처 추천 관광지 알려줘",
+    "preset2": "축제 일정",
+    "preset2_text": "이번 달 구미 축제 일정 알려줘",
+    "preset3": "식당 추천",
+    "preset3_text": "근처 추천 식당 알려줘",
+    "clear": "초기화",
+    "errorPrefix": "오류"
+  },
+  "comment": {
+    "title": "댓글 ({count})",
+    "authorPlaceholder": "작성자",
+    "contentPlaceholder": "댓글을 입력하세요.",
+    "replyPlaceholder": "답글을 입력하세요.",
+    "submit": "작성",
+    "reply": "답글",
+    "replySubmit": "답글 작성",
+    "edit": "수정",
+    "editing": "편집",
+    "save": "저장",
+    "delete": "삭제",
+    "deleteConfirm": "삭제 확인",
+    "confirm": "확인",
+    "errContent": "댓글 내용을 입력하세요.",
+    "errSubmit": "작성 실패",
+    "errEdit": "수정 실패",
+    "errDelete": "삭제 실패",
+    "authorFallback": "작성자"
   }
 }

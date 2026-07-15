@@ -1,40 +1,40 @@
 <template>
   <div>
-    <h2>{{ $t ? $t('detail.title') : '게시글 상세' }}</h2>
+    <h2>{{ t('detail.title') }}</h2>
     <div v-if="post">
       <h3>{{ post.title }}</h3>
       <div class="post-content">{{ post.content }}</div>
-      <small>{{ $t ? $t('board.createdAt', { date: format(post.createdAt) }) : ('작성: ' + format(post.createdAt)) }}</small>
+      <small>{{ t('board.createdAt', { date: format(post.createdAt) }) }}</small>
       <div style="margin-top:8px; display:flex; gap:8px; align-items:center;">
-        <button class="btn primary" @click="startEdit">{{ $t ? $t('app.edit') : '수정' }}</button>
-        <button class="btn primary" @click="askDelete">{{ $t ? $t('app.delete') : '삭제' }}</button>
-        <button class="btn primary" @click="goBack">{{ $t ? $t('app.backToList') : '목록으로' }}</button>
+        <button class="btn primary" @click="startEdit">{{ t('app.edit') }}</button>
+        <button class="btn primary" @click="askDelete">{{ t('app.delete') }}</button>
+        <button class="btn primary" @click="goBack">{{ t('app.backToList') }}</button>
       </div>
 
       <div v-if="deleteMode" class="delete-inline" style="margin-top:12px;">
-        <input v-model="delPassword" type="password" placeholder="비밀번호" ref="delPwdRef" />
+        <input v-model="delPassword" type="password" :placeholder="t('app.passwordPlaceholder')" ref="delPwdRef" />
         <div class="actions" style="display:flex; gap:8px; margin-left:8px; align-items:center;">
-          <button class="btn primary" @click="doDelete">{{ $t ? $t('app.delete') : '삭제' }}</button>
-          <button class="btn ghost" @click="cancelDelete">취소</button>
+          <button class="btn primary" @click="doDelete">{{ t('app.delete') }}</button>
+          <button class="btn ghost" @click="cancelDelete">{{ t('app.close') }}</button>
         </div>
         <div class="error" v-if="deleteError">{{ deleteError }}</div>
         <div class="success" v-if="deleteSuccess">{{ deleteSuccess }}</div>
       </div>
     </div>
     <div v-else>
-      <p>{{ $t ? $t('board.noPosts') : '게시글을 찾을 수 없습니다.' }}</p>
+      <p>{{ t('board.noPosts') }}</p>
     </div>
 
     <div v-if="editing" style="margin-top:12px;">
-      <h4>{{ $t ? $t('detail.editTitle') : '수정 (비밀번호 확인)' }}</h4>
+      <h4>{{ t('detail.editTitle') }}</h4>
       <input v-model="editTitle" />
       <textarea v-model="editContent"></textarea>
-      <input v-model="editPassword" type="password" :placeholder="$t ? $t('app.passwordPlaceholder') : '비밀번호 입력'" ref="editPwdRef" />
+      <input v-model="editPassword" type="password" :placeholder="t('app.passwordPlaceholder')" ref="editPwdRef" />
       <div class="error" v-if="editError">{{ editError }}</div>
       <div class="success" v-if="editSuccess">{{ editSuccess }}</div>
       <div style="display:flex; gap:8px; margin-top:8px;">
-        <button class="btn primary" @click="doUpdate">{{ $t ? $t('app.saved') : '저장' }}</button>
-        <button class="btn ghost" @click="cancelEdit">{{ $t ? $t('app.close') : '취소' }}</button>
+        <button class="btn primary" @click="doUpdate">{{ t('app.saved') }}</button>
+        <button class="btn ghost" @click="cancelEdit">{{ t('app.close') }}</button>
       </div>
     </div>
 
@@ -47,10 +47,12 @@ import { ref, onMounted, nextTick } from 'vue'
 import { loadPosts, updatePost, deletePost } from '../utils/storage'
 import { useRouter, useRoute } from 'vue-router'
 import CommentSection from '../components/CommentSection.vue'
+import { useI18n } from 'vue-i18n'
 
 export default {
   components: { CommentSection },
   setup() {
+    const { t, locale } = useI18n()
     const router = useRouter()
     const route = useRoute()
     const id = route.params.id
@@ -71,7 +73,15 @@ export default {
       const p = loadPosts().find(x => x.id === id)
       post.value = p || null
     }
-    function format(t){ return t ? new Date(t).toLocaleString() : '' }
+    function format(tVal){
+      if (!tVal) return ''
+      try {
+        const d = new Date(tVal)
+        // use i18n locale for formatting
+        const loc = (locale && locale.value) ? locale.value : undefined
+        return d.toLocaleString(loc)
+      } catch(e) { return String(tVal) }
+    }
 
     function startEdit(){
       editing.value = true
@@ -87,15 +97,15 @@ export default {
     async function doUpdate() {
       editError.value = ''
       editSuccess.value = ''
-      if (!editPassword.value) { editError.value = '비밀번호를 입력하세요.'; await nextTick(); const el = document.querySelector('input[ref="editPwdRef"]'); if (el) el.focus(); return }
+      if (!editPassword.value) { editError.value = t('app.confirmDeletePrompt') || '비밀번호를 입력하세요.'; await nextTick(); const el = document.querySelector('input[ref="editPwdRef"]'); if (el) el.focus(); return }
       try {
         updatePost(id, { title: editTitle.value, content: editContent.value }, editPassword.value)
-        editSuccess.value = '수정되었습니다.'
+        editSuccess.value = t('app.saved')
         editing.value = false
         load()
         try { window.dispatchEvent(new Event('ggb-posts-changed')) } catch(e){}
       } catch (e) {
-        editError.value = e.message || '수정 실패'
+        editError.value = e.message || t('app.editFail') || '수정 실패'
         await nextTick()
         const el = document.querySelector('input[ref="editPwdRef"]')
         if (el) el.focus()
@@ -109,14 +119,14 @@ export default {
     function doDelete(){
       deleteError.value = ''
       deleteSuccess.value = ''
-      if (!delPassword.value) { deleteError.value = '비밀번호를 입력하세요.'; nextTick(()=>{ const el=document.querySelector('input[ref=\"delPwdRef\"]'); if(el) el.focus() }); return }
+      if (!delPassword.value) { deleteError.value = t('app.confirmDeletePrompt') || '비밀번호를 입력하세요.'; nextTick(()=>{ const el=document.querySelector('input[ref=\"delPwdRef\"]'); if(el) el.focus() }); return }
       try {
         deletePost(id, delPassword.value)
-        deleteSuccess.value = '삭제되었습니다.'
+        deleteSuccess.value = t('app.deleted')
         try { window.dispatchEvent(new Event('ggb-posts-changed')) } catch(e){}
         setTimeout(()=> router.push('/board'), 400)
       } catch(e){
-        deleteError.value = e.message || '삭제 실패'
+        deleteError.value = e.message || t('app.deleteFail') || '삭제 실패'
         setTimeout(()=>{ const el = document.querySelector('input[ref=\"delPwdRef\"]'); if(el) el.focus() }, 0)
       }
     }
@@ -126,7 +136,7 @@ export default {
     }
 
     onMounted(load)
-    return { post, editing, deleteMode, editTitle, editContent, editPassword, delPassword, startEdit, cancelEdit, doUpdate, askDelete, doDelete, format, goBack, editError, editSuccess, deleteError, deleteSuccess, cancelDelete }
+    return { t, post, editing, deleteMode, editTitle, editContent, editPassword, delPassword, startEdit, cancelEdit, doUpdate, askDelete, doDelete, format, goBack, editError, editSuccess, deleteError, deleteSuccess, cancelDelete }
   }
 }
 </script>

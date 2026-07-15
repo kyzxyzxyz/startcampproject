@@ -2,17 +2,17 @@
   <div class="page card">
     <div class="view-header" style="display:flex;justify-content:space-between;align-items:center;">
       <div>
-        <h2>커뮤니티</h2>
-        <p class="muted">카테고리별 게시글 목록입니다.</p>
+        <h2>{{ $t('app.communityView') }}</h2>
+        <p class="muted">{{ $t('board.listTitle') }}</p>
       </div>
       <div>
-        <button class="btn primary" @click="goWrite">글 작성</button>
+        <button class="btn primary" @click="goWrite">{{ $t('app.myPost') }}</button>
       </div>
     </div>
 
     <div class="category-bar" style="margin:12px 0;">
-      <button :class="['cat-btn',{active:selected===null}]" @click="select(null)">전체</button>
-      <button v-for="c in categories" :key="c" :class="['cat-btn',{active:selected===c}]" @click="select(c)">{{ c }}</button>
+      <button :class="['cat-btn',{active:selected===null}]" @click="select(null)">{{ $t('board.all') }}</button>
+      <button v-for="c in categories" :key="c.key" :class="['cat-btn',{active:selected===c.value}]" @click="select(c.value)">{{ $t(`categories.${c.key}`) }}</button>
     </div>
 
     <BoardList :category="selected" :poiId="null" />
@@ -29,13 +29,19 @@ export default {
   setup() {
     const router = useRouter()
     const categories = [
-      '관광지','레포츠','문화시설','쇼핑','숙박','여행코스','음식점','축제공연행사'
+      { key: 'tourist', value: '관광지' },
+      { key: 'sports', value: '레포츠' },
+      { key: 'culture', value: '문화시설' },
+      { key: 'shopping', value: '쇼핑' },
+      { key: 'lodging', value: '숙박' },
+      { key: 'course', value: '여행코스' },
+      { key: 'food', value: '음식점' },
+      { key: 'festival', value: '축제공연행사' }
     ]
     const selected = ref(null)
     function select(c){ selected.value = c }
 
     function goWrite(){
-      // 이동시 현재 선택 카테고리를 쿼리로 전달 (작성 폼에서 초기값으로 사용)
       const q = {}
       if (selected.value) q.category = selected.value
       router.push({ path: '/board', query: q })
