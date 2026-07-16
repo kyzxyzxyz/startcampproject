@@ -221,23 +221,19 @@ export default {
           </div>
         ` : ''
 
-        const darkPopupStyle = 'background:#1e1e24;color:#f1f3f5;border:1px solid rgba(255,255,255,0.06);box-shadow:0 8px 30px rgba(2,6,23,0.6);border-radius:8px;padding:10px;';
-        const darkAddrStyle = 'color:#9aa0a6;';
-        const darkLinkColor = '#60a5fa';
-
         const popupHtml = `
-          <div class="poi-popup" style="${darkPopupStyle}">
-            <div class="poi-top">
-              <a href="#" class="plain-link" data-poi-id="${poiId}" data-poi-title="${localizedTitle}" data-poi-category="${escapeHtml(typeName)}" style="color:${darkLinkColor};font-weight:600;text-decoration:none;">
-                ${escapeHtml(title)}
-              </a>
-              ${subHtml}
-              ${addr ? `<div class="poi-addr" style="${darkAddrStyle}">${escapeHtml(addr)}</div>` : ''}
-              ${tel ? `<div class="poi-tel" style="color:#f1f3f5;margin-top:4px;">☎ ${escapeHtml(tel)}</div>` : ''}
-              ${imgHtml}
-            </div>
-            ${bodyHtml}
-          </div>`.trim()
+        <div class="poi-popup">
+          <div class="poi-top">
+            <a href="#" class="plain-link" data-poi-id="${poiId}" data-poi-title="${localizedTitle}" data-poi-category="${escapeHtml(typeName)}">
+              ${escapeHtml(title)}
+            </a>
+            ${subHtml}
+            ${addr ? `<div class="poi-addr">${escapeHtml(addr)}</div>` : ''}
+            ${tel ? `<div class="poi-tel">☎ ${escapeHtml(tel)}</div>` : ''}
+            ${imgHtml}
+          </div>
+          ${bodyHtml}
+        </div>`.trim()
 
         marker.bindPopup(popupHtml, { minWidth: 260, maxWidth: 360, autoPan: false })
 
