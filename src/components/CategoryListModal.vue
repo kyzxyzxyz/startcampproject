@@ -100,14 +100,45 @@ export default {
 </script>
 
 <style scoped>
-.overlay { position:fixed; inset:0; background:rgba(2,6,23,0.5); display:flex; align-items:center; justify-content:center; z-index:99999; }
-.modal { width:min(760px,96%); max-height:80vh; overflow:auto; background:#fff; border-radius:10px; padding:12px; box-sizing:border-box; }
-.modal-header { display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #eee; padding-bottom:8px; }
-.modal-body { padding:12px 0; }
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(2,6,23,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 99999;
+}
+.modal {
+  width: min(760px, 96%);
+  max-height: 80vh;
+  overflow: auto;
+  background: var(--card);
+  border-radius: 10px;
+  padding: 12px;
+  box-sizing: border-box;
+  border: 1px solid var(--border);
+  color: var(--text);
+}
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 8px;
+}
+.modal-body { padding: 12px 0; }
 .modal-controls { display:flex; gap:8px; margin-bottom:8px; align-items:center; }
-.search-input { flex:1; padding:8px 10px; border:1px solid rgba(11,17,34,0.08); border-radius:8px; }
+.search-input {
+  flex:1;
+  padding:8px 10px;
+  border:1px solid var(--border);
+  border-radius:8px;
+  background: var(--card);
+  color: var(--text);
+}
 .poi-list { list-style:none; padding:0; margin:0; }
-.poi-item { padding:8px 0; border-bottom:1px solid rgba(2,6,23,0.04); }
+.poi-item { padding:8px 0; border-bottom:1px solid rgba(0,0,0,0.04); }
 
 /* 레이아웃: 썸네일 + 본문 */
 .poi-row { display:flex; align-items:flex-start; gap:12px; }
@@ -135,8 +166,8 @@ export default {
 
 /* 제목 밑 메타(작게) */
 .poi-meta { display:flex; flex-direction:column; gap:4px; }
-.poi-addr { font-size:12px; color:#64748b; }
-.poi-tel { font-size:12px; color:#0b1220; }
+.poi-addr { font-size:12px; color: var(--text-muted); }
+.poi-tel { font-size:12px; color: var(--text); }
 
 /* 모바일: 썸네일 왼쪽에서 위로 이동 */
 @media (max-width: 560px) {

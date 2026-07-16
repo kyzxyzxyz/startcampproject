@@ -85,10 +85,10 @@ onMounted(() => {
 
 <style scoped>
 .weather-card {
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--border);
   border-radius: 12px;
   padding: 14px;
-  background: #f8fbff;
+  background: var(--surface);
 }
 .weather-header {
   display: flex;
@@ -99,7 +99,7 @@ onMounted(() => {
 .weather-label {
   margin: 0;
   font-size: 12px;
-  color: #64748b;
+  color: var(--text-muted);
 }
 .refresh-btn {
   border-radius: 999px;
@@ -119,18 +119,22 @@ onMounted(() => {
 .temp {
   font-size: 24px;
   font-weight: 700;
+  color: var(--text-main);
 }
 .desc {
-  color: #475569;
+  color: var(--text-muted);
 }
 .weather-meta {
   list-style: none;
   padding: 0;
   margin: 0;
-  color: #64748b;
+  color: var(--text-muted);
   font-size: 13px;
 }
 .weather-state.error {
   color: #dc2626;
 }
+
+
+
 </style>

@@ -8,6 +8,17 @@
   </head>
   <body>
     <div id="app"></div>
+    <meta name="theme-color" content="#ffffff">
     <script type="module" src="/src/main.js"></script>
   </body>
 </html>
+
+<script>
+(function(){
+  try{
+    const t = localStorage.getItem('theme');
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    if (t === 'dark' || (!t && prefersDark)) document.documentElement.classList.add('dark');
+  } catch(e){}
+})();
+</script>

@@ -163,20 +163,40 @@ export default {
 <style scoped>
 /* (스타일은 이전과 동일) */
 .community-modal { width:100%; box-sizing:border-box; padding:0; }
-.cm-header{
+.cm-header {
   display:flex; align-items:center; justify-content:space-between;
-  padding:16px 20px; border-bottom:1px solid rgba(11,17,34,0.06);
+  padding:16px 20px;
+  border-bottom:1px solid var(--border);
+  background: var(--card);
 }
+
 .cm-title h3{ margin:0; font-size:18px; color:var(--text); }
 .cm-sub{ margin:6px 0 0 0; font-size:13px; color:var(--muted); }
 .cm-body{ padding:18px 20px 28px 20px; display:flex; flex-direction:column; gap:18px; }
-.form-card,.list-card{ background:var(--card); border-radius:10px; padding:18px; border:1px solid rgba(11,17,34,0.04); box-shadow:var(--shadow); }
+.form-card,.list-card{
+  background:var(--card);
+  border-radius:10px;
+  padding:18px;
+  border:1px solid var(--border);
+  box-shadow:var(--shadow);
+}
 .form{ display:flex; flex-direction:column; gap:14px; }
 .section-title{ margin:0 0 8px 0; font-size:16px; }
 .form-row{ display:flex; gap:12px; align-items:flex-start; }
 .form-label{ width:120px; font-weight:600; color:var(--muted); margin-top:6px; }
 .form-control{ flex:1; }
-.form-control input,.form-control select,.form-control textarea{ width:100%; padding:12px 14px; border-radius:8px; border:1px solid rgba(11,17,34,0.06); box-sizing:border-box; background:white; font-size:14px; }
+.form-control input,
+.form-control select,
+.form-control textarea{
+  width:100%;
+  padding:12px 14px;
+  border-radius:8px;
+  border:1px solid var(--border);
+  box-sizing:border-box;
+  background: var(--card);
+  color: var(--text);
+  font-size:14px;
+}
 .form-control textarea{ min-height:160px; resize:vertical; }
 .form-actions{ display:flex; justify-content:flex-end; margin-top:6px; }
 .muted{ color:var(--muted); }

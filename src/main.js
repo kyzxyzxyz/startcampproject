@@ -9,6 +9,7 @@ import CommunityView from './views/CommunityView.vue'
 import FestivalView from './views/FestivalView.vue'
 import './styles.css'
 import i18n from './i18n' // vue-i18n 설정 파일
+import { updateMetaThemeColor, setTheme, initThemeStorageSync } from './utils/theme';
 
 import 'leaflet/dist/leaflet.css'
 import L from 'leaflet'
@@ -36,3 +37,12 @@ const router = createRouter({
 })
 
 createApp(App).use(router).use(i18n).mount('#app')
+
+// after imports, before mount:
+updateMetaThemeColor();
+initThemeStorageSync();
+
+const app = createApp(App).use(router).use(i18n);
+app.config.globalProperties.$setTheme = setTheme;
+window.setTheme = setTheme;
+app.mount('#app');

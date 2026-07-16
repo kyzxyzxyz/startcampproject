@@ -273,8 +273,8 @@ export default {
 <style scoped>
 .festival-calendar {
   width: 100%;
-  background: #fff;
-  border: 1px solid #e2e8f0;
+  background: var(--card);
+  border: 1px solid var(--border);
   border-radius: 16px;
   padding: 12px;
   box-sizing: border-box;
@@ -291,7 +291,7 @@ export default {
 
 .calendar-title {
   font-weight: 700;
-  color: #334155;
+  color: var(--text);
   font-size: 14px;
 }
 
@@ -302,21 +302,15 @@ export default {
   gap: 8px;
 }
 
-.week-grid {
-  grid-template-columns: repeat(7, 1fr);
-}
-
-.month-grid {
-  grid-template-columns: repeat(7, 1fr);
-  grid-auto-rows: 150px;
-}
+.week-grid { grid-template-columns: repeat(7, 1fr); }
+.month-grid { grid-template-columns: repeat(7, 1fr); grid-auto-rows: 150px; }
 
 .day-card {
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--border);
   border-radius: 10px;
   padding: 8px;
   box-sizing: border-box;
-  background: #fbfdff;
+  background: var(--card);
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -324,14 +318,24 @@ export default {
   overflow: hidden;
 }
 
-.day-card.other-month { opacity:0.55; }
+.day-card.other-month { opacity: 0.55; }
 
 .day-top { display:flex; justify-content:space-between; align-items:baseline; gap:8px; }
-.day-name { font-size:12px; color:#64748b; font-weight:700; }
-.day-number { font-size:16px; font-weight:700; color:#0f172a; }
+.day-name { font-size:12px; color: var(--muted); font-weight:700; }
+.day-number { font-size:16px; font-weight:700; color: var(--text); }
 
 .day-events { margin-top:0; display:flex; flex-direction:column; gap:6px; overflow-y:auto; padding-right:4px; }
-.event-chip { font-size:12px; border-radius:6px; padding:6px 8px; line-height:1.2; white-space:normal; word-break:break-word; overflow:visible; text-overflow:clip; box-shadow: 0 1px 0 rgba(15,17,26,0.04) inset; }
-.empty { font-size:11px; color:#94a3b8; }
-.nav-btn { padding:6px 8px; border-radius:8px; }
+.event-chip {
+  font-size:12px;
+  border-radius:6px;
+  padding:6px 8px;
+  line-height:1.2;
+  white-space:normal;
+  word-break:break-word;
+  overflow:visible;
+  text-overflow:clip;
+  box-shadow: var(--shadow);
+}
+.empty { font-size:11px; color: var(--muted); }
+.nav-btn { padding:6px 8px; border-radius:8px; background: transparent; border: 1px solid var(--border); color: var(--text); }
 </style>
