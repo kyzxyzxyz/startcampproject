@@ -16,10 +16,16 @@
           <p class="count">{{ $t('modal.resultCount', { total: items.length, filtered: filteredItems.length }) }}</p>
           <ul class="poi-list">
             <li v-for="it in filteredItems" :key="it.contentid || it.id" class="poi-item">
-              <BaseButton variant="ghost" class="plain-link" @click="openCommunity(it)">
-                {{ it.title || it.name }}
-              </BaseButton>
-              <div class="poi-sub">{{ it.addr1 || it.addr || '' }}</div>
+              <div class="poi-row">
+                <BaseButton variant="ghost" class="plain-link" @click="openCommunity(it)">
+                  {{ it.title || it.name }}
+                </BaseButton>
+
+                <div class="poi-meta">
+                  <div class="poi-addr">{{ it.addr1 || it.addr || '' }}</div>
+                  <div v-if="it.tel" class="poi-tel">☎ {{ it.tel }}</div>
+                </div>
+              </div>
             </li>
           </ul>
         </div>
@@ -87,7 +93,10 @@ export default {
 .modal-controls { display:flex; gap:8px; margin-bottom:8px; align-items:center; }
 .search-input { flex:1; padding:8px 10px; border:1px solid rgba(11,17,34,0.08); border-radius:8px; }
 .poi-list { list-style:none; padding:0; margin:0; }
-.poi-item { padding:8px 0; border-bottom:1px solid rgba(2,6,23,0.04); display:flex; flex-direction:column; }
+.poi-item { padding:8px 0; border-bottom:1px solid rgba(2,6,23,0.04); }
+
+/* 레이아웃: 제목은 왼쪽, 주소/전화는 오른쪽 정렬 */
+.poi-row { display:flex; align-items:flex-start; justify-content:space-between; gap:12px; }
 .plain-link {
   background: transparent;
   border: none;
@@ -97,9 +106,26 @@ export default {
   padding: 0;
   text-align: left;
   font-size: 15px;
+  display: inline-flex;
+  align-items: flex-start;
+  justify-content: flex-start;
+  white-space: normal;
+  flex: 1 1 auto;
 }
 .plain-link:hover { text-decoration: underline; }
-.poi-sub { font-size:12px; color:#64748b; margin-top:4px; }
+
+.poi-meta { display:flex; flex-direction:column; align-items:flex-end; gap:4px; min-width:140px; margin-left:8px; }
+.poi-addr { font-size:12px; color:#64748b; text-align:right; }
+.poi-tel { font-size:12px; color:#0b1220; text-align:right; }
+
+/* footer/count */
 .modal-footer { display:flex; justify-content:flex-end; gap:8px; padding-top:8px; border-top:1px solid #eee; }
 .count { margin:0 0 8px; color:#475569; }
+
+/* 반응형: 작은 화면에서는 메타를 아래로 내려 자연스럽게 보이도록 함 */
+@media (max-width: 560px) {
+  .poi-row { flex-direction:column; align-items:flex-start; }
+  .poi-meta { align-items:flex-start; min-width:0; margin-left:0; margin-top:6px; }
+  .poi-addr, .poi-tel { text-align:left; }
+}
 </style>

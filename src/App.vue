@@ -13,11 +13,11 @@
         </div>
 
         <div class="header-actions">
-          <BaseButton @click="goMap" variant="ghost">지도 보기</BaseButton>
-          <BaseButton @click="goCommunity" variant="ghost">커뮤니티 보기</BaseButton>
-          <BaseButton @click="goCalendar" variant="ghost">캘린더</BaseButton>
+          <BaseButton @click="goMap" variant="ghost">{{ $t('app.map') }}</BaseButton>
+          <BaseButton @click="goCommunity" variant="ghost">{{ $t('app.communityView') }}</BaseButton>
+          <BaseButton @click="goCalendar" variant="ghost">{{ $t('app.calendar') }}</BaseButton>
           <LanguageSwitcher />
-          <button class="search-btn" aria-label="검색" @click="openSearchModal">
+          <button class="search-btn" :aria-label="$t('app.searchButtonAria') || '검색'" @click="openSearchModal">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden>
               <path d="M21 21l-4.35-4.35" stroke="#334155" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
               <circle cx="11" cy="11" r="5" stroke="#334155" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>

@@ -6,16 +6,17 @@
           <h1 class="hero-title">{{ $t('app.homeTitle') }}</h1>
           <p class="lead">{{ $t('app.homeLead') }}</p>
 
-          <div class="category-grid">
+          <div class="category-grid" role="list">
             <BaseButton
               v-for="cat in categories"
               :key="cat.key"
               class="cat-card"
               variant="ghost"
               @click="openCategory(cat)"
+              role="listitem"
             >
-              <div class="cat-num">{{ getCount(cat.key) }}</div>
               <div class="cat-label">{{ $t(cat.labelKey) }}</div>
+              <div class="cat-num">{{ getCount(cat.key) }}</div>
             </BaseButton>
           </div>
         </div>
@@ -46,14 +47,6 @@
       <aside class="right-col">
         <div class="card">
           <WeatherCard />
-        </div>
-        <div class="card">
-          <h4>{{ $t('app.recommendRoutes') }}</h4>
-          <ul class="compact-list">
-            <li>금오산 산책 코스 · 1일</li>
-            <li>구미 푸드 페스티벌 즐기기</li>
-            <li>지역 문화시설 탐방</li>
-          </ul>
         </div>
 
         <div class="card">
@@ -206,10 +199,11 @@ export default {
 
 <style scoped>
 .hero {
-  padding: 36px 20px;
-  background: linear-gradient(90deg, rgba(236, 249, 255, 1) 0%, rgba(245, 251, 255, 1) 100%);
-  border-radius: 8px;
-  margin-bottom: 18px;
+  background: var(--card);
+  padding: 18px;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  border: 1px solid rgba(11,17,34,0.04);
 }
 
 .hero-inner {
@@ -218,5 +212,71 @@ export default {
   align-items: flex-start;
   max-width: 1100px;
   margin: 0 auto;
+}
+
+.hero-title {
+  font-size: 22px;
+  margin: 0 0 6px;
+  color: var(--text);
+  font-weight: 800;
+}
+.lead {
+  margin: 0 0 16px;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+/* 카테고리 그리드: 한 줄로 정렬, 가로 스크롤 허용 */
+.category-grid {
+  display: flex;
+  gap: 10px;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  padding-bottom: 6px;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* 카테고리 카드: 이름 위, 개수 아래 (세로 정렬) */
+.cat-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  min-width: 120px;
+  height: 72px;
+  background: transparent;
+  border: 1px solid rgba(11,17,34,0.04);
+  color: var(--text);
+  flex: 0 0 auto;
+}
+
+/* 카테고리 이름 강조 */
+.cat-label {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1;
+  text-align: center;
+}
+
+/* 개수는 아래, primary 색상 */
+.cat-num {
+  font-weight: 800;
+  color: var(--primary);
+  font-size: 14px;
+  text-align: center;
+}
+
+/* 반응형: 작은 화면에서 카드 너비 축소 */
+@media (max-width: 820px) {
+  .hero-inner { flex-direction: column; gap: 12px; }
+  .hero-right { display: none; }
+  .category-grid { gap: 8px; }
+  .cat-card { min-width: 100px; height: 64px; padding: 8px 10px; }
+  .cat-label { font-size: 15px; }
+  .cat-num { font-size: 13px; }
 }
 </style>

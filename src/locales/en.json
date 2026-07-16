@@ -2,9 +2,10 @@
   "app": {
     "homeTitle": "Gumi & Gyeongbuk Region Info Community",
     "homeLead": "Share and discover local information across Gumi and the Gyeongbuk region.",
-    "communityView": "View Community",
+    "communityView": "Community",
     "mapView": "View Map",
     "map": "Map",
+    "calendar": "Calendar",
     "quickLinks": "Quick Links",
     "myPost": "Leave a Place Suggestion",
     "chat": "Chat with Bot",
@@ -29,7 +30,8 @@
     "subscribePlaceholder": "Enter your email",
     "subscribeButton": "Subscribe",
     "subscribeNote": "Receive newsletter and updates by email.",
-    "chatTitle": "Chatbot"
+    "chatTitle": "Chatbot",
+    "searchButtonAria": "Search"
   },
   "categories": {
     "tourist": "Tourist spots",
