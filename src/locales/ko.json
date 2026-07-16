@@ -2,9 +2,10 @@
   "app": {
     "homeTitle": "구미 · 경북권 지역 정보 공유 커뮤니티",
     "homeLead": "구미 · 경북권의 지역 정보를 자유롭게 공유해보세요.",
-    "communityView": "커뮤니티 보기",
+    "communityView": "커뮤니티",
     "mapView": "지도 보기",
     "map": "지도",
+    "calendar": "캘린더",
     "quickLinks": "빠른 바로가기",
     "myPost": "내 장소 의견 남기기",
     "chat": "챗봇과 대화",
@@ -29,7 +30,8 @@
     "subscribePlaceholder": "이메일을 입력하세요",
     "subscribeButton": "구독",
     "subscribeNote": "뉴스레터와 업데이트를 이메일로 받아보세요.",
-    "chatTitle": "챗봇"
+    "chatTitle": "챗봇",
+    "searchButtonAria": "검색"
   },
   "categories": {
     "tourist": "관광지",

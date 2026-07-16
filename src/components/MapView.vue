@@ -1,17 +1,20 @@
 <template>
   <div>
     <div class="map-controls">
-      <BaseButton :class="{active: activeType === null}" variant="neutral" size="sm" @click="showAll">{{ t('board.all') }}</BaseButton>
+      <button class="control-btn" :class="{ active: activeType === null }" @click="showAll">
+        {{ t('board.all') }}
+      </button>
 
-      <BaseButton
+      <button
         v-for="type in types"
         :key="type"
-        :class="{active: activeType === type}"
+        class="control-btn"
+        :class="{ active: activeType === type }"
         :style="buttonStyle(type)"
-        variant="ghost"
-        @click="selectType(type)">
-        {{ t(typeLabelMap[type] ?? type) }}
-      </BaseButton>
+        @click="selectType(type)"
+      >
+        {{ t(typeLabelMap[type] ?? findLabelKey(type) ?? type) }}
+      </button>
     </div>
 
     <div class="map-container card">
@@ -27,10 +30,8 @@ import 'leaflet.markercluster'
 import 'leaflet.markercluster/dist/MarkerCluster.css'
 import 'leaflet.markercluster/dist/MarkerCluster.Default.css'
 import { useI18n } from 'vue-i18n'
-import BaseButton from './BaseButton.vue'
 
 export default {
-  components: { BaseButton },
   setup() {
     const { t } = useI18n()
     const mapEl = ref(null)
@@ -40,8 +41,8 @@ export default {
     const zoomStepOnClick = 2
 
     const classifications = {}
-
     const layerGroups = {}
+    const normalizedMap = {}
     const markerIndex = {}
     const types = ref([])
     const activeType = ref(null)
@@ -54,6 +55,7 @@ export default {
       '문화시설': 'categories.culture',
       '숙박': 'categories.lodging',
       '여행코스': 'categories.course',
+      '축제/공연/행사': 'categories.festival',
       '축제공연행사': 'categories.festival',
       '기타': 'app.list'
     }
@@ -90,14 +92,14 @@ export default {
 
     async function loadFiles() {
       const files = [
-        '/data/구미_경북권_관광지.json',
-        '/data/구미_경북권_음식점.json',
-        '/data/구미_경북권_축제공연행사.json',
-        '/data/구미_경북권_문화시설.json',
-        '/data/구미_경북권_레포츠.json',
-        '/data/구미_경북권_숙박.json',
-        '/data/구미_경북권_여행코스.json',
-        '/data/구미_경북권_쇼핑.json'
+        '/구미_경북권_관광지.json',
+        '/구미_경북권_음식점.json',
+        '/구미_경북권_축제공연행사.json',
+        '/구미_경북권_문화시설.json',
+        '/구미_경북권_레포츠.json',
+        '/구미_경북권_숙박.json',
+        '/구미_경북권_여행코스.json',
+        '/구미_경북권_쇼핑.json'
       ]
       const results = await Promise.all(files.map(async (f) => {
         try {
@@ -130,8 +132,27 @@ export default {
         .replace(/'/g, '&#039;')
     }
 
+    function normalizeTypeName(s) {
+      try {
+        return String(s || '').normalize().replace(/[\s\/\\　]+/g, '').trim()
+      } catch (e) {
+        return String(s || '').replace(/[\s\/\\　]+/g, '').trim()
+      }
+    }
+
+    function findLabelKey(type) {
+      if (!type) return null
+      try {
+        const norm = normalizeTypeName(type)
+        for (const k of Object.keys(typeLabelMap)) {
+          if (normalizeTypeName(k) === norm) return typeLabelMap[k]
+        }
+      } catch (e) {}
+      return null
+    }
+
     function getClassification(it){
-      const ctid = String(it.contenttypeid || it.contentTypeId || '')
+      const ctid = String(it.contenttypeid || it.contentTypeId || '1')
       const pick = (fields) => {
         for (const f of fields) {
           if (it[f] && String(it[f]).trim()) return String(it[f]).trim()
@@ -186,7 +207,6 @@ export default {
         const bodyText = (it.overview || it.description || '').trim()
         const tel = it.tel || ''
         const img = it.firstimage || it.firstimage2 || ''
-        const classification = escapeHtml(getClassification(it))
         const localizedTitle = escapeHtml(title)
 
         const subCode = (it.lclsSystm3 || it.lclsSystm3 || '').toString().trim()
@@ -270,13 +290,51 @@ export default {
       })
     }
 
+    function fitToPoints(pointsArr) {
+      if (!map || !pointsArr || !pointsArr.length) return
+      try {
+        const bounds = L.latLngBounds(pointsArr)
+        map.fitBounds(bounds, { padding: [60, 60], maxZoom: defaultPoiZoom })
+      } catch (e) {}
+    }
+
     function applyVisibleLayers() {
+      if (!map) return
+      if (!Object.keys(layerGroups).length) return
+
       clearLayersFromMap()
+
       if (activeType.value === null) {
-        Object.values(layerGroups).forEach(obj => obj.layer.addTo(map))
-      } else {
-        const obj = layerGroups[activeType.value]
-        if (obj) obj.layer.addTo(map)
+        // show all
+        const allPoints = []
+        Object.values(layerGroups).forEach(obj => {
+          obj.layer.addTo(map)
+          if (Array.isArray(obj.points) && obj.points.length) {
+            obj.points.forEach(p => allPoints.push(p))
+          }
+        })
+        // fit to all if there are points
+        if (allPoints.length) fitToPoints(allPoints)
+        return
+      }
+
+      // try direct key first, then normalized lookup
+      const direct = layerGroups[activeType.value]
+      if (direct) {
+        direct.layer.addTo(map)
+        if (Array.isArray(direct.points) && direct.points.length) {
+          fitToPoints(direct.points)
+        }
+        return
+      }
+      const norm = normalizeTypeName(activeType.value)
+      const foundKey = normalizedMap[norm]
+      if (foundKey && layerGroups[foundKey]) {
+        const obj = layerGroups[foundKey]
+        obj.layer.addTo(map)
+        if (Array.isArray(obj.points) && obj.points.length) {
+          fitToPoints(obj.points)
+        }
       }
     }
 
@@ -288,6 +346,28 @@ export default {
 
     function showAll() {
       activeType.value = null
+      applyVisibleLayers()
+    }
+
+    function selectTypeByName(typeName) {
+      if (typeName === null) {
+        showAll()
+        return
+      }
+      const norm = normalizeTypeName(typeName)
+      const direct = layerGroups[typeName]
+      if (direct) {
+        activeType.value = typeName
+        applyVisibleLayers()
+        return
+      }
+      const mapped = normalizedMap[norm]
+      if (mapped) {
+        activeType.value = mapped
+      } else {
+        const found = types.value.find(x => normalizeTypeName(x) === norm)
+        activeType.value = found ?? null
+      }
       applyVisibleLayers()
     }
 
@@ -344,6 +424,16 @@ export default {
       }
     }
 
+    function handleSelectMapType(ev) {
+      const requested = ev?.detail?.type ?? null
+      if (!map) return
+      if (requested === null) {
+        showAll()
+        return
+      }
+      selectTypeByName(requested)
+    }
+
     onMounted(async () => {
       map = L.map(mapEl.value, { center: [36.11, 128.34], zoom: 11, preferCanvas: true })
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -358,8 +448,14 @@ export default {
         const typeName = f.contentType || '기타'
         if (!discovered.includes(typeName)) discovered.push(typeName)
       })
+
       types.value = discovered
-      discovered.forEach(tn => getColorForType(tn))
+
+      discovered.forEach(tn => {
+        const n = normalizeTypeName(tn)
+        normalizedMap[n] = tn
+        getColorForType(tn)
+      })
 
       files.forEach(f => {
         const typeName = f.contentType || '기타'
@@ -368,23 +464,36 @@ export default {
 
       applyVisibleLayers()
       window.addEventListener('goto-poi', handleGotoPoi)
+      window.addEventListener('select-map-type', handleSelectMapType)
     })
 
     onBeforeUnmount(() => {
       if (map) map.remove()
       try { window.removeEventListener('goto-poi', handleGotoPoi) } catch(e){}
+      try { window.removeEventListener('select-map-type', handleSelectMapType) } catch(e){}
     })
 
-    return { mapEl, types, activeType, selectType, showAll, t, typeLabelMap, buttonStyle }
+    return { mapEl, types, activeType, selectType, showAll, t, typeLabelMap, buttonStyle, selectTypeByName, findLabelKey }
   }
 }
 </script>
 
 <style scoped>
 .map-controls { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px; }
-.map-controls button { padding:8px 10px; border-radius:8px; border:1px solid rgba(11,17,34,0.06); font-weight:600; cursor:pointer; }
-.map-controls button.all-btn { background:#fff; color:#0f172a; border-color: rgba(11,17,34,0.06); }
-.map-controls button.active { box-shadow:0 6px 18px rgba(15,99,254,0.08); }
+.control-btn {
+  padding:8px 10px;
+  border-radius:8px;
+  border:1px solid rgba(11,17,34,0.06);
+  font-weight:600;
+  cursor:pointer;
+  background: #f3f4f6;
+  color: #0b1220;
+  transition: all .12s ease;
+}
+.control-btn.active {
+  box-shadow:0 6px 18px rgba(15,99,254,0.08);
+  color: #fff;
+}
 .map-container { width:100%; }
 .map { width:100%; height:520px; border-radius:10px; overflow:hidden; border:1px solid rgba(11,17,34,0.04); position:relative; z-index:0; }
 </style>

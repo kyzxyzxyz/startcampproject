@@ -34,6 +34,7 @@ export default {
     const history = ref([{ role: 'assistant', text: t('chat.greeting') }])
     const dataCache = ref([])
     const historyRef = ref(null)
+    const sending = ref(false)
 
     onMounted(async () => {
       dataCache.value = await loadAllData()
@@ -51,9 +52,12 @@ export default {
       } catch (e) { el.scrollTop = el.scrollHeight }
     }
 
-    async function send() {
-      if (!q.value.trim()) return
-      const userText = q.value.trim()
+    async function send(textArg) {
+      if (sending.value) return
+      const raw = (typeof textArg === 'string') ? textArg : q.value
+      if (!raw || !raw.trim()) return
+      sending.value = true
+      const userText = raw.trim()
       history.value.push({ role: 'user', text: userText })
 
       const top = simpleRank(userText, dataCache.value, 5)
@@ -65,8 +69,7 @@ export default {
 
       const messages = [
         { role: 'system', content: systemContext },
-        ...history.value.filter(h => h.role !== 'system').map(h => ({ role: h.role, content: h.text })),
-        { role: 'user', content: userText }
+        ...history.value.filter(h => h.role !== 'system').map(h => ({ role: h.role, content: h.text }))
       ]
 
       history.value.push({ role: 'assistant', text: t('chat.generating') })
@@ -79,11 +82,12 @@ export default {
         history.value[history.value.length - 1].text = ai
       } catch (e) {
         history.value[history.value.length - 1].text = `${t('chat.errorPrefix')}: ${e.message}`
+      } finally {
+        sending.value = false
+        q.value = ''
+        await nextTick()
+        scrollToBottom(true)
       }
-
-      await nextTick()
-      scrollToBottom(true)
-      q.value = ''
     }
 
     function clear() {
@@ -94,8 +98,7 @@ export default {
     function presetKey(n) {
       const key = `chat.preset${n}_text`
       const text = t(key)
-      q.value = text
-      send()
+      send(text)
     }
 
     return { q, history, send, clear, presetKey, historyRef, t }
@@ -113,7 +116,7 @@ export default {
   box-shadow:var(--shadow);
   display:flex;
   flex-direction:column;
-  height: auto; /* 변경: 100% -> auto (빈공간 원인 제거) */
+  height: auto;
 }
 
 /* 히스토리 영역은 내용에 따라 작아지고, 길어지면 스크롤 */
