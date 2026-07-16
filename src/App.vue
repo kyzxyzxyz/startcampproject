@@ -35,12 +35,12 @@
       <div class="footer-inner">
         <div class="contact">
           <div class="contact-item">
-            <strong>{{ $t('app.contactEmail') }}:</strong>
-            <a href="mailto:contact@example.com">contact@example.com</a>
+            <strong>{{ $t('app.contactEmail') }} :</strong>
+            <a href="mailto:contact@example.com"> contact@example.com</a>
           </div>
           <div class="contact-item">
-            <strong>{{ $t('app.contactPhone') }}:</strong>
-            <a href="tel:+821012345678">+82 10-1234-5678</a>
+            <strong>{{ $t('app.contactPhone') }} :</strong>
+            <a href="tel:+821012345678"> +82 10-1234-5678</a>
           </div>
         </div>
 
@@ -125,7 +125,7 @@ export default {
       this.$router.push('/').catch(()=>{})
       setTimeout(()=>{ const el = document.querySelector('#map-section'); if(el && el.scrollIntoView) el.scrollIntoView({ behavior:'smooth' }) }, 300)
     },
-    goCalendar() { this.$router.push('/festivals-week') }
+    goCalendar() { this.$router.push('/festivals') }
   }
 }
 </script>

@@ -1,13 +1,13 @@
 <template>
   <div class="festival-calendar">
     <div v-if="showDateControls" class="calendar-toolbar">
-      <BaseButton variant="ghost" size="sm" class="nav-btn" @click="goPrev">
+      <BaseButton variant="ghost" size="sm" class="nav-btn" @click="onNav('prev')">
         {{ isMonthView ? '◀ 이전달' : '◀ 전주' }}
       </BaseButton>
 
       <div class="calendar-title">{{ currentLabel }}</div>
 
-      <BaseButton variant="ghost" size="sm" class="nav-btn" @click="goNext">
+      <BaseButton variant="ghost" size="sm" class="nav-btn" @click="onNav('next')">
         {{ isMonthView ? '다음달 ▶' : '다음주 ▶' }}
       </BaseButton>
     </div>
@@ -119,12 +119,13 @@ export default {
   setup(props) {
     const events = ref([])
     const currentDate = ref(new Date())
+    const navLocked = ref(false)
 
     const isMonthView = computed(() => {
       try {
         if (props.viewMode === 'month') return true
         if (typeof window !== 'undefined' && window.location && window.location.pathname) {
-          return window.location.pathname.indexOf('/festivals') !== -1
+          return window.location.pathname === '/festivals' || window.location.pathname.startsWith('/festivals')
         }
       } catch (e) {}
       return false
@@ -191,24 +192,32 @@ export default {
       return result
     })
 
-    function goPrev() {
+    function changeMonth(offset) {
       const d = new Date(currentDate.value)
-      if (isMonthView.value) {
-        d.setMonth(d.getMonth() - 1)
-      } else {
-        d.setDate(d.getDate() - 7)
-      }
+      // normalize to first day of current month to avoid end-of-month overflow
+      const year = d.getFullYear()
+      const month = d.getMonth()
+      currentDate.value = new Date(year, month + offset, 1)
+    }
+
+    function changeWeek(offsetWeeks) {
+      const d = new Date(currentDate.value)
+      d.setDate(d.getDate() + offsetWeeks * 7)
       currentDate.value = d
     }
 
-    function goNext() {
-      const d = new Date(currentDate.value)
+    function onNav(dir) {
+      if (navLocked.value) return
+      navLocked.value = true
+      setTimeout(() => { navLocked.value = false }, 150)
+
       if (isMonthView.value) {
-        d.setMonth(d.getMonth() + 1)
+        if (dir === 'next') changeMonth(1)
+        else changeMonth(-1)
       } else {
-        d.setDate(d.getDate() + 7)
+        if (dir === 'next') changeWeek(1)
+        else changeWeek(-1)
       }
-      currentDate.value = d
     }
 
     async function loadFestivals() {
@@ -241,6 +250,11 @@ export default {
     }
 
     onMounted(() => {
+      // If showing month view, normalize currentDate to the first day of that month
+      if (isMonthView.value) {
+        const d = new Date(currentDate.value)
+        currentDate.value = new Date(d.getFullYear(), d.getMonth(), 1)
+      }
       loadFestivals()
     })
 
@@ -250,8 +264,7 @@ export default {
       currentLabel,
       showDateControls: props.showDateControls,
       isMonthView,
-      goPrev,
-      goNext
+      onNav
     }
   }
 }
