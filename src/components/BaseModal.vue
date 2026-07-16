@@ -55,7 +55,7 @@ export default {
   border-radius: 12px;
   overflow: auto;
   box-shadow: 0 20px 60px rgba(2,6,23,0.12);
-  border: 1px solid rgba(11,17,34,0.04);
+  border: 1px solid var(--border);
   box-sizing: border-box;
 }
 </style>

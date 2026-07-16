@@ -216,25 +216,28 @@ export default {
         const imgHtml = img ? `<div class="poi-image" style="margin-top:8px;text-align:center;"><img src="${escapeHtml(img)}" style="max-width:100%;max-height:140px;border-radius:6px;object-fit:cover;" alt="${escapeHtml(title)}"/></div>` : ''
 
         const bodyHtml = bodyText ? `
-  <div class="poi-body" style="min-height:60px; max-height:160px; overflow:auto; font-size:13px; color:#334155; padding:8px; border-radius:6px; background:#fbfdff; border:1px solid rgba(11,17,34,0.03); margin-top:8px;">
-    ${escapeHtml(bodyText)}
-  </div>
-` : ''
+          <div class="poi-body">
+            ${escapeHtml(bodyText)}
+          </div>
+        ` : ''
+
+        const darkPopupStyle = 'background:#1e1e24;color:#f1f3f5;border:1px solid rgba(255,255,255,0.06);box-shadow:0 8px 30px rgba(2,6,23,0.6);border-radius:8px;padding:10px;';
+        const darkAddrStyle = 'color:#9aa0a6;';
+        const darkLinkColor = '#60a5fa';
 
         const popupHtml = `
-<div class="poi-popup" style="font-family:inherit; color:#0b1220; display:flex; flex-direction:column; gap:6px; padding:8px; max-width:360px;">
-  <div class="poi-top" style="display:flex; flex-direction:column; gap:4px;">
-    <a href="#" class="plain-link" data-poi-id="${poiId}" data-poi-title="${localizedTitle}" data-poi-category="${escapeHtml(typeName)}"
-       style="background:transparent;border:none;color:#2563eb;font-weight:600;cursor:pointer;padding:0;text-align:left;font-size:15px;text-decoration:none;display:inline-block;">
-      ${escapeHtml(title)}
-    </a>
-    ${subHtml}
-    ${addr ? `<div class="poi-addr" style="font-size:13px;color:#64748b;line-height:1.3;">${escapeHtml(addr)}</div>` : ''}
-    ${tel ? `<div class="poi-tel" style="font-size:13px;color:#0b1220;margin-top:4px;">☎ ${escapeHtml(tel)}</div>` : ''}
-    ${imgHtml}
-  </div>
-  ${bodyHtml}
-</div>`.trim()
+          <div class="poi-popup" style="${darkPopupStyle}">
+            <div class="poi-top">
+              <a href="#" class="plain-link" data-poi-id="${poiId}" data-poi-title="${localizedTitle}" data-poi-category="${escapeHtml(typeName)}" style="color:${darkLinkColor};font-weight:600;text-decoration:none;">
+                ${escapeHtml(title)}
+              </a>
+              ${subHtml}
+              ${addr ? `<div class="poi-addr" style="${darkAddrStyle}">${escapeHtml(addr)}</div>` : ''}
+              ${tel ? `<div class="poi-tel" style="color:#f1f3f5;margin-top:4px;">☎ ${escapeHtml(tel)}</div>` : ''}
+              ${imgHtml}
+            </div>
+            ${bodyHtml}
+          </div>`.trim()
 
         marker.bindPopup(popupHtml, { minWidth: 260, maxWidth: 360, autoPan: false })
 

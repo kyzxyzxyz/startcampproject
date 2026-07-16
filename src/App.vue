@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <header class="site-header">
+    <header class="site-header" :style="headerStyle">
       <div class="header-inner">
         <div class="brand">
           <router-link to="/" class="logo" aria-label="LocalHub 홈">
@@ -17,6 +17,9 @@
           <BaseButton @click="goCommunity" variant="ghost">{{ $t('app.communityView') }}</BaseButton>
           <BaseButton @click="goCalendar" variant="ghost">{{ $t('app.calendar') }}</BaseButton>
           <LanguageSwitcher />
+          <button class="search-btn theme-toggle" aria-label="다크 모드 토글" @click="toggleTheme">
+            {{ isDark ? '🌙' : '☀️' }}
+          </button>
           <button class="search-btn" :aria-label="$t('app.searchButtonAria') || '검색'" @click="openSearchModal">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden>
               <path d="M21 21l-4.35-4.35" stroke="#334155" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
@@ -63,7 +66,7 @@
 </template>
 
 <script>
-import { ref, nextTick } from 'vue'
+import { ref, nextTick, computed } from 'vue'
 import ChatModal from './components/ChatModal.vue'
 import CommunityModal from './components/CommunityModal.vue'
 import LanguageSwitcher from './components/LanguageSwitcher.vue'
@@ -77,10 +80,36 @@ export default {
     const email = ref('')
     const subInput = ref(null)
     const subscribeError = ref('')
+    const isDark = ref(document.documentElement.classList.contains('dark'));
+
+    const headerStyle = computed(() => ({
+      background: isDark.value ? '#1e1e24' : '#ffffff',
+      borderBottom: isDark.value ? '1px solid #2c2d35' : '1px solid rgba(2,6,23,0.06)',
+      color: isDark.value ? '#f1f3f5' : '#0b1220'
+    }));
+
+    const iconColor = computed(() => isDark.value ? '#9aa0a6' : '#334155');
 
     function openSearchModal() {
       if (searchModal.value && searchModal.value.open) searchModal.value.open()
     }
+
+    function syncIsDark() {
+      isDark.value = document.documentElement.classList.contains('dark');
+    }
+
+    // 탭 간 동기화
+    window.addEventListener('storage', (e) => {
+      if (e.key === 'theme') syncIsDark();
+    });
+
+    // 시스템 테마 변경 감지 (브라우저 호환)
+    const mq = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)');
+    if (mq) {
+      if (mq.addEventListener) mq.addEventListener('change', syncIsDark);
+      else if (mq.addListener) mq.addListener(syncIsDark);
+    }
+
 
     async function focusSubInput() {
       await nextTick()
@@ -117,16 +146,25 @@ export default {
       }
     }
 
-    return { searchModal, openSearchModal, email, subscribe, subInput, subscribeError }
+    return { searchModal, openSearchModal, email, subscribe, subInput, subscribeError, isDark, headerStyle, iconColor  }
   },
   methods: {
     goCommunity() { this.$router.push('/community') },
     goMap() {
       this.$router.push('/').catch(()=>{})
-      setTimeout(()=>{ const el = document.querySelector('#map-section'); if(el && el.scrollIntoView) el.scrollIntoView({ behavior:'smooth' }) }, 300)
+      setTimeout(()=>{
+        const el = document.querySelector('#map-section');
+        if(el && el.scrollIntoView) el.scrollIntoView({ behavior:'smooth' })
+      }, 300)
     },
-    goCalendar() { this.$router.push('/festivals') }
-  }
+    goCalendar() { this.$router.push('/festivals') },
+
+    toggleTheme() {
+      const currentlyDark = document.documentElement.classList.contains('dark');
+      (window.setTheme || (()=>{}))(!currentlyDark);
+      this.isDark = !currentlyDark;
+    }
+  },
 }
 </script>
 
@@ -138,8 +176,9 @@ export default {
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  border: 1px solid rgba(11, 17, 34, 0.06);
-  background: white;
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--text);
 }
 
 /* footer tweaks */
