@@ -10,21 +10,22 @@
   --radius: 12px;
   --shadow: 0 8px 30px rgba(15,23,42,0.06);
   --border: rgba(11,17,34,0.04);
+  --overlay: rgba(2,6,23,0.48);
 }
 
 /* Dark theme overrides */
 html.dark{
   --bg: #121214;
-  --card: #1e1e24;        /* 라이트의 --card 대체(콘텐츠 카드/박스) */
-  --muted: #9aa0a6;       /* 보조 텍스트 */
-  --primary: #60a5fa;     /* 액센트(다크에서 더 밝게) */
+  --card: #1e1e24;
+  --muted: #9aa0a6;
+  --primary: #60a5fa;
   --accent: #06b6d4;
-  --text: #f1f3f5;        /* 기본 텍스트(밝게) */
+  --text: #f1f3f5;
   --glass: rgba(255,255,255,0.04);
   --radius: 12px;
   --shadow: 0 8px 30px rgba(2,6,23,0.6);
-  --border-color: rgba(255,255,255,0.06); /* 선택: 기존 rgba(...) 교체용 */
   --border: rgba(255,255,255,0.06);
+  --overlay: rgba(255,255,255,0.04);
 }
 
 /* Reset */
@@ -41,7 +42,7 @@ a:hover { text-decoration:underline; }
   border-radius:var(--radius);
   padding:18px;
   box-shadow:var(--shadow);
-  border:1px solid rgba(11,17,34,0.04);
+  border:1px solid var(--border);
 }
 
 /* Layout container */
@@ -59,7 +60,7 @@ a:hover { text-decoration:underline; }
 }
 .btn.ghost {
   background:transparent;
-  border:1px solid rgba(11,17,34,0.06);
+  border:1px solid var(--border);
   color:var(--primary);
   padding:8px 12px;
   border-radius:10px;
@@ -68,8 +69,8 @@ a:hover { text-decoration:underline; }
 
 /* Header */
 .site-header {
-  background: #fff;
-  border-bottom: 1px solid rgba(2,6,23,0.06);
+  background: var(--card);
+  border-bottom: 1px solid var(--border);
   position: sticky;
   top: 0;
   z-index: 60;
@@ -93,7 +94,7 @@ a:hover { text-decoration:underline; }
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(2,6,23,0.48);
+  background: var(--overlay);
   display:flex;
   align-items:center;
   justify-content:center;
@@ -106,17 +107,17 @@ a:hover { text-decoration:underline; }
   border-radius: 12px;
   overflow: auto;
   box-shadow: 0 20px 60px rgba(2,6,23,0.12);
-  border: 1px solid rgba(11,17,34,0.04);
+  border: 1px solid var(--border);
 }
 
 /* Form controls */
 input[type="text"], input[type="email"], input[type="password"], textarea {
   padding: 10px 12px;
   border-radius: 8px;
-  border: 1px solid rgba(11,17,34,0.06);
+  border: 1px solid var(--border);
   font-size:14px;
   color:var(--text);
-  background:white;
+  background:var(--card);
 }
 textarea { min-height:120px; }
 
@@ -125,8 +126,8 @@ textarea { min-height:120px; }
 
 /* Footer */
 .site-footer {
-  background: #ffffff;
-  border-top: 1px solid rgba(2,6,23,0.06);
+  background: var(--card);
+  border-top: 1px solid var(--border);
   padding: 18px 0;
   box-sizing: border-box;
   margin-top: 28px;
@@ -142,10 +143,10 @@ textarea { min-height:120px; }
   box-sizing: border-box;
 }
 .footer-inner .contact { display:flex; flex-direction:column; gap:6px; align-items:flex-start; }
-.footer-inner .contact-item { color:#475569; font-size:14px; }
+.footer-inner .contact-item { color:var(--muted); font-size:14px; }
 .footer-inner .subscribe { display:flex; flex-direction:column; align-items:flex-end; gap:6px; }
 .subscribe-form { display:flex; gap:8px; align-items:center; }
-.subscribe-note { color:#64748b; font-size:13px; margin:6px 0 0; }
+.subscribe-note { color:var(--muted); font-size:13px; margin:6px 0 0; }
 .subscribe-error { color:#b91c1c; font-size:13px; margin:6px 0 0; }
 
 /* Responsive */
@@ -183,10 +184,77 @@ textarea { min-height:120px; }
 html.dark .festival-calendar,
 html.dark .festival-calendar .day-card {
   border-color: rgba(255,255,255,0.03) !important;
-  box-shadow: none; /* 필요하면 그림자도 약하게 제거 */
+  box-shadow: none;
 }
 
 /* 이벤트 칩 내부 그림자도 더 연하게 (선택) */
 html.dark .festival-calendar .event-chip {
   box-shadow: 0 1px 0 rgba(255,255,255,0.02) inset;
+}
+
+/* Leaflet 팝업을 테마 변수로 스타일링 (다크 모드 포함) */
+.leaflet-popup-content-wrapper {
+  background: var(--card) !important;
+  color: var(--text) !important;
+  border-radius: 10px;
+  box-shadow: var(--shadow) !important;
+  border: 1px solid var(--border) !important;
+}
+
+.leaflet-popup-tip-container, .leaflet-popup-tip {
+  background: transparent;
+  pointer-events: none;
+}
+
+.leaflet-popup-tip {
+  width: 30px;
+  height: 12px;
+  transform: translateY(-1px);
+}
+
+/* 내부 내용 영역 */
+.leaflet-popup-content {
+  padding: 8px 10px !important;
+  color: var(--text) !important;
+  background: transparent;
+  font-family: inherit;
+}
+
+/* 닫기 버튼 */
+.leaflet-popup-close-button {
+  color: var(--muted) !important;
+  background: transparent !important;
+  border: none !important;
+  text-shadow: none !important;
+  opacity: 0.9;
+}
+
+/* 링크 / 텍스트 등 내부 컴포넌트 보정 */
+.poi-popup { color: var(--text) !important; }
+.poi-popup .plain-link { color: var(--primary) !important; }
+.poi-popup .poi-addr, .poi-popup .poi-tel, .poi-popup .poi-subcat {
+  color: var(--muted) !important;
+}
+.poi-popup .poi-body {
+  background: var(--card) !important;
+  color: var(--text) !important;
+  border: 1px solid var(--border) !important;
+}
+
+/* 이미지 테두리/배경 보정(필요시 더 조정) */
+.poi-popup .poi-image img {
+  background: transparent;
+  border-radius: 6px;
+  display: block;
+}
+
+/* Leaflet 내 a 태그(팝업 링크 포함) 색상 일관성 유지 */
+.leaflet-container a, .leaflet-popup-content a {
+  color: var(--primary) !important;
+}
+
+/* 작은 뷰포트 보정 */
+@media (max-width:560px){
+  .leaflet-popup-content { padding:10px !important; }
+  .poi-popup .poi-image img { max-height:160px; }
 }

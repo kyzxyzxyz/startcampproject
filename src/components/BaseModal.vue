@@ -43,7 +43,7 @@ export default {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(2,6,23,0.48);
+  background: var(--overlay, rgba(2,6,23,0.48));
   z-index: 99999;
   -webkit-tap-highlight-color: transparent;
 }

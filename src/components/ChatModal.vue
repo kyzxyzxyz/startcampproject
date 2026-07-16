@@ -62,15 +62,16 @@ export default {
   box-shadow:0 6px 18px rgba(2,6,23,0.08);
 }
 
-/* overlay */
+/* overlay: 다크/라이트 모두 var(--overlay) 사용 */
 .chat-modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(6,8,12,0.45);
+  background: var(--overlay, rgba(6,8,12,0.45));
   display:flex;
   align-items:center;
   justify-content:center;
   z-index: 99998;
+  backdrop-filter: blur(4px);
 }
 
 /* responsive modal */
@@ -78,22 +79,26 @@ export default {
   width: clamp(320px, 90vw, 1100px);
   max-height: 95vh;
   height: auto;
-  background: white;
+  background: var(--card);
+  color: var(--text);
   border-radius: 12px;
   overflow: hidden;
   display:flex;
   flex-direction: column;
   box-shadow: 0 20px 60px rgba(2,6,23,0.2);
   z-index: 99999;
+  border: 1px solid var(--border);
 }
 
+/* Header: 배경과 테두리 var 사용, 텍스트 색상 조정 */
 .chat-header {
   display:flex;
   align-items:center;
   justify-content:space-between;
   padding:12px 16px;
-  border-bottom:1px solid rgba(15,23,42,0.04);
-  background: linear-gradient(90deg,#f8fafc,#ffffff);
+  border-bottom:1px solid var(--border);
+  background: linear-gradient(90deg, color-mix(in srgb, var(--card) 98%, var(--glass) 2%), var(--card));
+  color: var(--text);
 }
 
 /* body은 내용에 따라 크기가 조절되고, 내부(히스토리)는 필요 시 스크롤 */
@@ -105,6 +110,13 @@ export default {
   min-height: 0;
   max-height: calc(95vh - 56px);
   overflow: visible;
+  background: transparent;
+  color: var(--text);
+}
+
+/* 버튼 등 내부 .base-btn이 var 색상 따라갈 수 있도록 보정 (optional) */
+.base-btn {
+  color: inherit;
 }
 
 /* 작은 화면용 세부 조정 */

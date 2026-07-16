@@ -54,7 +54,37 @@ export default {
 </script>
 
 <style scoped>
-.muted { color:#64748b; margin:0; }
-.cat-btn { margin-right:8px; padding:8px 12px; border-radius:8px; border:1px solid rgba(11,17,34,0.06); background:#fff; cursor:pointer; }
-.cat-btn.active { background:var(--primary); color:#fff; border-color:var(--primary); }
+.muted { color:var(--muted); margin:0; }
+
+/* 카테고리 버튼: 다크/라이트 변수 사용 */
+.cat-btn {
+  margin-right:8px;
+  padding:8px 12px;
+  border-radius:8px;
+  border:1px solid var(--border);
+  background: transparent;
+  color: var(--text);
+  cursor:pointer;
+  transition: all .12s ease;
+  box-shadow: none;
+}
+
+/* 호버(비활성 상태) */
+.cat-btn:not(.active):hover {
+  background: color-mix(in srgb, var(--card) 92%, var(--primary) 8%);
+  color: var(--text);
+  border-color: var(--border);
+}
+
+/* 활성 상태 */
+.cat-btn.active {
+  background: var(--primary);
+  color: #fff;
+  border-color: var(--primary);
+}
+
+/* 모바일에서 버튼 간격 보정 */
+@media (max-width:720px) {
+  .cat-btn { margin-bottom:8px; }
+}
 </style>

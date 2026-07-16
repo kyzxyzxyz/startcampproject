@@ -36,13 +36,38 @@ const router = createRouter({
   routes
 })
 
-createApp(App).use(router).use(i18n).mount('#app')
-
-// after imports, before mount:
+// 메타/테마 초기화
 updateMetaThemeColor();
 initThemeStorageSync();
 
-const app = createApp(App).use(router).use(i18n);
-app.config.globalProperties.$setTheme = setTheme;
-window.setTheme = setTheme;
-app.mount('#app');
+const app = createApp(App)
+app.use(router)
+app.use(i18n)
+
+// 전역 테마 접근성 제공
+app.config.globalProperties.$setTheme = setTheme
+window.setTheme = setTheme
+
+// 전역 이벤트: 'open-post' 수신 시 상세로 이동 후 CommunityModal 닫기 이벤트 발생
+window.addEventListener('open-post', (e) => {
+  try {
+    const d = e && e.detail ? e.detail : null
+    let id = null
+    if (!d) return
+    if (typeof d === 'string') id = d
+    else if (d.id) id = d.id
+    else if (d.postId) id = d.postId
+    else if (d.raw) id = (d.raw.id || d.raw.postId || null)
+    if (id) {
+      router.push(`/board/${String(id)}`)
+        .then(() => {
+          try { window.dispatchEvent(new Event('close-community')) } catch (err) {}
+        })
+        .catch(()=>{})
+    }
+  } catch (err) {
+    // 무시
+  }
+})
+
+app.mount('#app')

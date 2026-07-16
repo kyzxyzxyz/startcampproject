@@ -76,13 +76,41 @@ export default {
       return colorMap[typeName]
     }
 
+    function adjustHex(hex, percent) {
+      try {
+        const h = String(hex || '').replace('#','').trim()
+        if (!/^[0-9a-fA-F]{6}$/.test(h)) return hex
+        const r = parseInt(h.slice(0,2),16)
+        const g = parseInt(h.slice(2,4),16)
+        const b = parseInt(h.slice(4,6),16)
+        const factor = (100 - percent) / 100
+        const nr = Math.round(Math.max(0, Math.min(255, r * factor)))
+        const ng = Math.round(Math.max(0, Math.min(255, g * factor)))
+        const nb = Math.round(Math.max(0, Math.min(255, b * factor)))
+        const toHex = v => v.toString(16).padStart(2,'0')
+        return `#${toHex(nr)}${toHex(ng)}${toHex(nb)}`
+      } catch (e) {
+        return hex
+      }
+    }
+
     function buttonStyle(typeName) {
+      let isDark = false
+      try { isDark = !!(document && document.documentElement && document.documentElement.classList && document.documentElement.classList.contains('dark')) } catch(e) { isDark = false }
+
       const color = getColorForType(typeName)
       const isActive = activeType.value === typeName
-      if (activeType.value === null) {
-        return { background: color, color: '#fff', borderColor: color }
-      } else if (isActive) {
-        return { background: color, color: '#fff', borderColor: color }
+
+      // '전체' 버튼은 CSS 클래스 기반(active 상태)로 스타일하므로 여기선 주로 개별 타입 버튼의 인라인 스타일만 제어
+      if (isActive) {
+        // 활성된 타입(예: 특정 카테고리 버튼)은 원래 컬러 유지하되 다크에서는 약간 어둡게 조정
+        const bg = isDark ? adjustHex(color, 18) : color
+        return { background: bg, color: '#fff', borderColor: bg }
+      }
+
+      // 비활성 버튼
+      if (isDark) {
+        return { background: 'transparent', color: 'var(--text)', borderColor: 'rgba(255,255,255,0.04)' }
       } else {
         return { background: '#f3f4f6', color: '#64748b', borderColor: 'rgba(11,17,34,0.06)' }
       }
@@ -304,7 +332,6 @@ export default {
       clearLayersFromMap()
 
       if (activeType.value === null) {
-        // show all
         const allPoints = []
         Object.values(layerGroups).forEach(obj => {
           obj.layer.addTo(map)
@@ -312,12 +339,10 @@ export default {
             obj.points.forEach(p => allPoints.push(p))
           }
         })
-        // fit to all if there are points
         if (allPoints.length) fitToPoints(allPoints)
         return
       }
 
-      // try direct key first, then normalized lookup
       const direct = layerGroups[activeType.value]
       if (direct) {
         direct.layer.addTo(map)
@@ -479,6 +504,8 @@ export default {
 
 <style scoped>
 .map-controls { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px; }
+
+/* 기본 버튼 스타일 */
 .control-btn {
   padding:8px 10px;
   border-radius:8px;
@@ -489,10 +516,28 @@ export default {
   color: #0b1220;
   transition: all .12s ease;
 }
+
+/* 활성 상태: 밝은 회색 배경, 어두운 텍스트로 변경 (라이트/다크 동일) */
 .control-btn.active {
   box-shadow:0 6px 18px rgba(15,99,254,0.08);
-  color: #fff;
+  color: #0b1220;
+  background: #E5E7EB; /* 밝은 회색 (라이트/다크 동일 유지) */
+  border-color: #E5E7EB;
 }
+
+/* 다크 모드: 비활성 버튼은 어둡게 유지, 활성 버튼은 위와 동일한 밝은 회색 유지 */
+html.dark .control-btn {
+  background: #111827;
+  color: var(--text);
+  border-color: rgba(255,255,255,0.04);
+}
+html.dark .control-btn.active {
+  /* 활성은 라이트와 동일한 밝은 회색을 유지 */
+  color: #0b1220;
+  background: #E5E7EB;
+  border-color: #E5E7EB;
+}
+
 .map-container { width:100%; }
 .map { width:100%; height:520px; border-radius:10px; overflow:hidden; border:1px solid rgba(11,17,34,0.04); position:relative; z-index:0; }
 </style>

@@ -106,33 +106,53 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
 .chat-wrapper {
-  border:1px solid rgba(11,17,34,0.06);
-  padding:12px;
-  width:100%;
-  background:#fff;
-  border-radius:10px;
-  box-shadow:var(--shadow);
-  display:flex;
-  flex-direction:column;
+  border: 1px solid var(--border);
+  padding: 12px;
+  width: 100%;
+  background: var(--card);
+  border-radius: 10px;
+  box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: column;
   height: auto;
 }
 
-/* 히스토리 영역은 내용에 따라 작아지고, 길어지면 스크롤 */
+/* 히스토리 영역 (스크롤) */
 .history {
-  overflow:auto;
-  padding:8px;
-  border:1px solid #eee;
-  border-radius:6px;
-  background:#fafafa;
+  overflow: auto;
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--card) 94%, transparent);
   flex: 0 1 auto;
-  min-height: 80px;
+  min-height: 100px;
   max-height: calc(60vh);
 }
 
-.input-row { margin-top:8px; display:flex; gap:8px; align-items:center; }
-.input-row input { flex:1; padding:10px; border-radius:8px; border:1px solid rgba(11,17,34,0.06); }
-.quick { margin-top:8px; display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+/* 입력 영역 */
+.input-row { margin-top: 10px; display:flex; gap:8px; align-items:center; }
+.input-row input {
+  flex:1;
+  padding:10px;
+  border-radius:8px;
+  border:1px solid var(--border);
+  background: var(--card);
+  color: var(--text);
+  box-shadow: none;
+}
+
+/* 빠른 버튼 영역 */
+.quick { margin-top:10px; display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
 .reset-btn { margin-left:auto; }
+
+/* 포커스 가시성 */
+.input-row input:focus { outline: 3px solid rgba(37,99,235,0.12); outline-offset: 2px; }
+
+/* 모바일 대응 */
+@media (max-width: 560px) {
+  .history { padding: 8px; max-height: 50vh; }
+  .input-row { flex-direction: row; }
+}
 </style>

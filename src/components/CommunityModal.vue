@@ -68,7 +68,7 @@
 </template>
 
 <script>
-import { ref, onMounted, nextTick } from 'vue'
+import { ref, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import { useI18n } from 'vue-i18n'
 import BaseModal from './BaseModal.vue'
 import BaseButton from './BaseButton.vue'
@@ -156,10 +156,22 @@ export default {
       try { window.dispatchEvent(new CustomEvent('open-post', { detail: post })) } catch(e){}
     }
 
+    function handleOpenCommunity(e) {
+      open(e.detail || {})
+    }
+
+    function handleCloseCommunity() {
+      close()
+    }
+
     onMounted(() => {
-      window.addEventListener('open-community', (e) => {
-        open(e.detail || {})
-      })
+      window.addEventListener('open-community', handleOpenCommunity)
+      window.addEventListener('close-community', handleCloseCommunity)
+    })
+
+    onBeforeUnmount(() => {
+      try { window.removeEventListener('open-community', handleOpenCommunity) } catch (e) {}
+      try { window.removeEventListener('close-community', handleCloseCommunity) } catch (e) {}
     })
 
     expose({ open, close })
@@ -209,7 +221,7 @@ export default {
 .form{ display:flex; flex-direction:column; gap:14px; }
 .section-title{ margin:0 0 8px 0; font-size:16px; }
 .form-row{ display:flex; gap:12px; align-items:flex-start; }
-.form-label{ width:120px; font-weight:600; color:var(--muted); margin-top:6px; }
+.form-label{ width:120px; font-weight:600; color:var(--muted); margin-top:6px }
 .form-control{ flex:1; }
 .form-control input,
 .form-control select,
