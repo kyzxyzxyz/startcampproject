@@ -6,61 +6,61 @@
           <h3>{{ title }}</h3>
           <p v-if="subtitle" class="cm-sub">{{ subtitle }}</p>
         </div>
-        <BaseButton variant="ghost" size="sm" @click="close" aria-label="닫기">✕</BaseButton>
+        <BaseButton variant="ghost" size="sm" @click="close" :aria-label="$t('app.close')">✕</BaseButton>
       </header>
 
       <div class="cm-body">
         <section class="form-card">
-          <h4 class="section-title">게시글 작성</h4>
+          <h4 class="section-title">{{ $t('app.createPostTitle') }}</h4>
 
           <form class="form" @submit.prevent="onCreate">
             <div class="form-row">
-              <label class="form-label">선택 장소</label>
+              <label class="form-label">{{ $t('app.selectPlace') }}</label>
               <div class="form-control">
                 <div v-if="initialTitle" class="poi-name">{{ initialTitle }}</div>
-                <div v-else class="poi-name muted">선택된 장소 없음</div>
+                <div v-else class="poi-name muted">{{ $t('app.noPlaceSelected') }}</div>
               </div>
             </div>
 
             <div class="form-row">
-              <label class="form-label">카테고리</label>
+              <label class="form-label">{{ $t('app.categoryLabel') }}</label>
               <div class="form-control">
                 <select v-model="category">
-                  <option value="">전체(선택)</option>
-                  <option v-for="c in categories" :key="c" :value="c">{{ c }}</option>
+                  <option value="">{{ $t('app.allSelectOption') }}</option>
+                  <option v-for="c in categories" :key="c.key" :value="c.key">{{ $t(c.labelKey) }}</option>
                 </select>
               </div>
             </div>
 
             <div class="form-row">
-              <label class="form-label">제목</label>
+              <label class="form-label">{{ $t('app.titleLabel') }}</label>
               <div class="form-control">
                 <input type="text" v-model="postTitle" required />
               </div>
             </div>
 
             <div class="form-row">
-              <label class="form-label">본문</label>
+              <label class="form-label">{{ $t('app.contentLabel') }}</label>
               <div class="form-control">
                 <textarea v-model="content" rows="8" required></textarea>
               </div>
             </div>
 
             <div class="form-row">
-              <label class="form-label">비밀번호</label>
+              <label class="form-label">{{ $t('app.passwordLabel') }}</label>
               <div class="form-control">
                 <input v-model="password" type="password" required />
               </div>
             </div>
 
             <div class="form-actions">
-              <BaseButton variant="primary" type="submit">작성</BaseButton>
+              <BaseButton variant="primary" type="submit">{{ $t('app.postButton') }}</BaseButton>
             </div>
           </form>
         </section>
 
         <section class="list-card">
-          <BoardList :category="initialCategory || null" :poiId="initialPoiId" :navigateOnClick="false" @open-post="openPost" />
+          <BoardList :category="initialCategoryForList" :poiId="initialPoiId" :navigateOnClick="false" @open-post="openPost" />
         </section>
       </div>
     </div>
@@ -69,6 +69,7 @@
 
 <script>
 import { ref, onMounted, nextTick } from 'vue'
+import { useI18n } from 'vue-i18n'
 import BaseModal from './BaseModal.vue'
 import BaseButton from './BaseButton.vue'
 import BoardList from './BoardList.vue'
@@ -78,31 +79,56 @@ export default {
   name: 'CommunityModal',
   components: { BaseModal, BaseButton, BoardList },
   setup(_, { expose }) {
+    const { t } = useI18n()
+
     const visible = ref(false)
     const initialPoiId = ref(null)
     const initialTitle = ref('')
-    const initialCategory = ref(null)
-    const title = ref('게시글 작성')
+    const initialCategory = ref(null) // raw incoming (may be localized or key)
+    const initialCategoryForList = ref(null) // normalized key or null for BoardList prop
+    const title = ref(t('app.createPostTitle'))
     const subtitle = ref('')
     const category = ref('')
-    const categories = ['관광지','레포츠','문화시설','쇼핑','숙박','여행코스','음식점','축제공연행사']
+    const categories = [
+      { key: 'tourist', labelKey: 'categories.tourist' },
+      { key: 'sports', labelKey: 'categories.sports' },
+      { key: 'culture', labelKey: 'categories.culture' },
+      { key: 'shopping', labelKey: 'categories.shopping' },
+      { key: 'lodging', labelKey: 'categories.lodging' },
+      { key: 'course', labelKey: 'categories.course' },
+      { key: 'food', labelKey: 'categories.food' },
+      { key: 'festival', labelKey: 'categories.festival' }
+    ]
 
     const postTitle = ref('')
     const content = ref('')
     const password = ref('')
 
+    function findCategoryByLabelOrKey(val) {
+      if (!val) return null
+      const byKey = categories.find(c => c.key === val)
+      if (byKey) return byKey
+      const byLabel = categories.find(c => t(c.labelKey) === val)
+      if (byLabel) return byLabel
+      return null
+    }
+
     function open(detail = {}) {
       initialPoiId.value = detail?.poiId || null
       initialTitle.value = detail?.poiTitle || ''
       initialCategory.value = detail?.poiCategory || detail?.category || null
-      title.value = initialTitle.value ? `「${initialTitle.value}」 의견` : '게시글 작성'
-      subtitle.value = initialCategory.value ? `${initialCategory.value}` : ''
+
+      const matched = findCategoryByLabelOrKey(initialCategory.value)
+      initialCategoryForList.value = matched ? matched.key : (initialCategory.value || null)
+
+      title.value = initialTitle.value ? `「${initialTitle.value}」 ${t('app.postForSuffix')}` : t('app.createPostTitle')
+      subtitle.value = matched ? t(matched.labelKey) : (initialCategory.value || '')
       visible.value = true
 
-      postTitle.value = initialTitle.value ? `[${initialTitle.value}] 후기 및 의견` : ''
+      postTitle.value = initialTitle.value ? `[${initialTitle.value}] ${t('app.defaultPostTitleSuffix')}` : ''
       content.value = ''
       password.value = ''
-      category.value = initialCategory.value || ''
+      category.value = matched ? matched.key : (initialCategory.value || '')
       nextTick(() => {})
     }
 
@@ -113,7 +139,7 @@ export default {
     function onCreate() {
       const post = {
         id: Date.now().toString(36) + Math.random().toString(36).slice(2,8),
-        category: category.value || initialCategory.value || '기타',
+        category: category.value || initialCategoryForList.value || 'etc',
         title: postTitle.value || '',
         content: content.value || '',
         password: password.value || '',
@@ -138,12 +164,12 @@ export default {
 
     expose({ open, close })
 
-    // <-- 중요: 템플릿에서 사용하므로 반드시 반환합니다
     return {
       visible,
       initialPoiId,
       initialTitle,
       initialCategory,
+      initialCategoryForList,
       title,
       subtitle,
       postTitle,

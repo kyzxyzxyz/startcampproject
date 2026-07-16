@@ -1,8 +1,8 @@
 <template>
   <div class="page">
     <div class="page-header">
-      <h2>축제 캘린더</h2>
-      <router-link to="/" class="back-link">홈으로</router-link>
+      <h2>{{ $t('app.festivalCalendar') }}</h2>
+      <router-link to="/" class="back-link">{{ $t('app.goHome') }}</router-link>
     </div>
 
     <FestivalCalendar :view-mode="'month'" :show-date-controls="true" />

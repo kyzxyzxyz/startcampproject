@@ -2,11 +2,11 @@
   <div class="page card">
     <div style="display:flex;justify-content:space-between;align-items:center;">
       <div>
-        <h2>게시글 작성</h2>
-        <p class="muted">여기에 글을 작성하세요. (비밀번호는 수정/삭제 시 필요)</p>
+        <h2>{{ $t('app.createPostTitle') }}</h2>
+        <p class="muted">{{ $t('app.boardWriteHint') }}</p>
       </div>
       <div>
-        <BaseButton variant="ghost" @click="$router.push('/community')">커뮤니티 목록으로</BaseButton>
+        <BaseButton variant="ghost" @click="$router.push('/community')">{{ $t('app.backToCommunity') }}</BaseButton>
       </div>
     </div>
 

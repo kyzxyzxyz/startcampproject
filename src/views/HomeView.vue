@@ -36,8 +36,8 @@
 
         <div class="card festival-card">
           <div class="card-header">
-            <h3 class="card-title">주간 축제 캘린더</h3>
-            <BaseButton class="view-all-btn" variant="ghost" @click="goToFestivals">캘린더 전체보기</BaseButton>
+            <h3 class="card-title">{{ $t('app.weeklyFestivalCalendar') }}</h3>
+            <BaseButton class="view-all-btn" variant="ghost" @click="goToFestivals">{{ $t('app.viewAllCalendars') }}</BaseButton>
           </div>
 
           <FestivalCalendar :compact="true" :show-date-controls="true" />

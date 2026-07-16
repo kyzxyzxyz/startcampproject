@@ -2,13 +2,13 @@
   <div class="festival-calendar">
     <div v-if="showDateControls" class="calendar-toolbar">
       <BaseButton variant="ghost" size="sm" class="nav-btn" @click="onNav('prev')">
-        {{ isMonthView ? '◀ 이전달' : '◀ 전주' }}
+        {{ isMonthView ? t('calendar.prevMonth') : t('calendar.prevWeek') }}
       </BaseButton>
 
       <div class="calendar-title">{{ currentLabel }}</div>
 
       <BaseButton variant="ghost" size="sm" class="nav-btn" @click="onNav('next')">
-        {{ isMonthView ? '다음달 ▶' : '다음주 ▶' }}
+        {{ isMonthView ? t('calendar.nextMonth') : t('calendar.nextWeek') }}
       </BaseButton>
     </div>
 
@@ -34,7 +34,7 @@
           >
             {{ event.title }}
           </div>
-          <div v-if="day.events.length === 0" class="empty">행사 없음</div>
+          <div v-if="day.events.length === 0" class="empty">{{ t('calendar.noEvents') }}</div>
         </div>
       </div>
     </div>
@@ -59,7 +59,7 @@
           >
             {{ event.title }}
           </div>
-          <div v-if="day.events.length === 0" class="empty">행사 없음</div>
+          <div v-if="day.events.length === 0" class="empty">{{ t('calendar.noEvents') }}</div>
         </div>
       </div>
     </div>
@@ -68,6 +68,7 @@
 
 <script>
 import { ref, computed, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import BaseButton from './BaseButton.vue'
 
 function ymdFromTourTime(ts) {
@@ -117,6 +118,7 @@ export default {
     viewMode: { type: String, default: 'week' }
   },
   setup(props) {
+    const { t } = useI18n()
     const events = ref([])
     const currentDate = ref(new Date())
     const navLocked = ref(false)
@@ -133,7 +135,11 @@ export default {
 
     const currentLabel = computed(() => {
       const d = new Date(currentDate.value)
-      return `${d.getFullYear()}년 ${d.getMonth() + 1}월`
+      return t('calendar.monthLabel', { year: d.getFullYear(), month: d.getMonth() + 1 })
+    })
+
+    const dayNames = computed(() => {
+      try { const arr = t('calendar.days'); return Array.isArray(arr) ? arr : ['일','월','화','수','목','금','토'] } catch(e) { return ['일','월','화','수','목','금','토'] }
     })
 
     const weekDays = computed(() => {
@@ -152,7 +158,7 @@ export default {
 
         result.push({
           key,
-          name: ['일', '월', '화', '수', '목', '금', '토'][d.getDay()],
+          name: dayNames.value[d.getDay()],
           number: d.getDate(),
           events: dayEvents
         })
@@ -182,7 +188,7 @@ export default {
 
         result.push({
           key,
-          name: ['일', '월', '화', '수', '목', '금', '토'][d.getDay()],
+          name: dayNames.value[d.getDay()],
           number: d.getDate(),
           events: dayEvents,
           inCurrentMonth: d.getMonth() === month
@@ -264,7 +270,8 @@ export default {
       currentLabel,
       showDateControls: props.showDateControls,
       isMonthView,
-      onNav
+      onNav,
+      t
     }
   }
 }
